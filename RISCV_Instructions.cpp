@@ -7,10 +7,9 @@
 #include <bitset>
 
 using namespace std;
-RISCV_Instructions::RISCV_Instructions(map<std::string, uint32_t>& registers)
+RISCV_Instructions::RISCV_Instructions()
 {
     // Constructor implementation
-    this->registers=registers;
 }
 
 RISCV_Instructions::~RISCV_Instructions()
@@ -35,15 +34,17 @@ void RISCV_Instructions::set_rs2(std::string temp_rs2)
 void RISCV_Instructions::set_rd(std::string temp_rd)
 {
     convert_to_xbase_register(temp_rd);
-    temp_rd= convert_to_binary(temp_rd);
-    rd= parseBinaryToFiveBit(temp_rd);
+    temp_rd = convert_to_binary(temp_rd);
+    rd = parseBinaryToFiveBit(temp_rd);
 }
 
 constexpr int m_size = 1024;
 uint8_t memory[m_size];
 
-int8_t LB(uint32_t address) {
-    if (address >= m_size) {
+int8_t LB(uint32_t address)
+{
+    if (address >= m_size)
+    {
         throw std::runtime_error("Memory access out of bounds");
     }
 
@@ -51,8 +52,10 @@ int8_t LB(uint32_t address) {
 
     return value;
 }
-int16_t LH(uint32_t address) {
-    if (address >= m_size - 1) {
+int16_t LH(uint32_t address)
+{
+    if (address >= m_size - 1)
+    {
         throw std::runtime_error("Memory access out of bounds");
     }
 
@@ -61,21 +64,26 @@ int16_t LH(uint32_t address) {
     return value;
 }
 
-int32_t LW(uint32_t address) {
-    if (address >= m_size - 3) {
+int32_t LW(uint32_t address)
+{
+    if (address >= m_size - 3)
+    {
         throw std::runtime_error("Memory access out of bounds");
     }
 
     int32_t value = 0;
-    for (int i = 3; i >= 0; --i) {
+    for (int i = 3; i >= 0; --i)
+    {
         value = (value << 8) | memory[address + i];
     }
 
     return value;
 }
 
-uint8_t LBU(uint32_t address) {
-    if (address >= m_size) {
+uint8_t LBU(uint32_t address)
+{
+    if (address >= m_size)
+    {
         throw std::runtime_error("Memory access out of bounds");
     }
 
@@ -84,8 +92,10 @@ uint8_t LBU(uint32_t address) {
     return value;
 }
 
-uint16_t LHU(uint32_t address) {
-    if (address >= m_size - 1) {
+uint16_t LHU(uint32_t address)
+{
+    if (address >= m_size - 1)
+    {
         throw std::runtime_error("Memory access out of bounds");
     }
 
@@ -94,50 +104,111 @@ uint16_t LHU(uint32_t address) {
     return value;
 }
 
-void SB(uint32_t address, uint8_t value) {
-    if (address >= m_size) {
+void SB(uint32_t address, uint8_t value)
+{
+    if (address >= m_size)
+    {
         throw std::runtime_error("Memory access out of bounds");
     }
 
     memory[address] = value;
 }
 
-void SH(uint32_t address, uint16_t value) {
-    if (address >= m_size - 1) {
+void SH(uint32_t address, uint16_t value)
+{
+    if (address >= m_size - 1)
+    {
         throw std::runtime_error("Memory access out of bounds");
     }
 
-    memory[address] = static_cast<uint8_t>(value & 0xFF); // Lower byte
+    memory[address] = static_cast<uint8_t>(value & 0xFF);            // Lower byte
     memory[address + 1] = static_cast<uint8_t>((value >> 8) & 0xFF); // Upper byte
 }
 
-void SW(uint32_t address, uint32_t value) {
-    if (address >= m_size - 3) {
+void SW(uint32_t address, uint32_t value)
+{
+    if (address >= m_size - 3)
+    {
         throw std::runtime_error("Memory access out of bounds");
     }
 
-    memory[address] = static_cast<uint8_t>(value & 0xFF);           
+    memory[address] = static_cast<uint8_t>(value & 0xFF);
     memory[address + 1] = static_cast<uint8_t>((value >> 8) & 0xFF);
     memory[address + 2] = static_cast<uint8_t>((value >> 16) & 0xFF);
     memory[address + 3] = static_cast<uint8_t>((value >> 24) & 0xFF);
 }
 
-uint32_t LUI(uint32_t imm) {
+uint32_t LUI(uint32_t imm)
+{
     uint32_t up_part = imm & 0xFFFFF000;
 
     return up_part;
 }
 
-int32_t addi(int32_t reg, int32_t imm) {
+int32_t addi(int32_t reg, int32_t imm)
+{
     return reg + imm;
 }
 
-
-void RISCV_Instructions::add(string rd,string rs1,string rs2)
+void RISCV_Instructions::ADD(string rd, string rs1, string rs2)
 {
-    if(rd!="X0") registers[rd]=registers[rs1]+registers[rs2];
+    if (rd != "X0")
+        registers[rd] = registers[rs1] + registers[rs2];
+    else
+    {
+        cout << "Can't add to x0" << endl;
+        exit(0);
+    }
 }
 
+void RISCV_Instructions::ADDI(string rd, string rs1, int imm)
+{
+    if (rd != "x0")
+        registers[rd] = registers[rs1] + imm;
+    else
+    {
+        cout << "Can't add to x0" << endl;
+        exit(1);
+    }
+}
+
+void RISCV_Instructions::AND(string rd, string rs1, string rs2)
+{
+    if (rd != "X0")
+        registers[rd] = registers[rs1] & registers[rs2];
+    else
+    {
+        cout << "Can't and to x0" << endl;
+        exit(2);
+    }
+}
+
+void RISCV_Instructions::ANDI(string rd, string rs1, int imm)
+{
+    if (rd != "X0")
+        registers[rd] = registers[rs1] & imm;
+    else
+    {
+        cout << "Can't and to x0" << endl;
+        exit(2);
+    }
+}
+
+void RISCV_Instructions::SUB(string rd, string rs1, string rs2)
+{
+    if (rd != "X0")
+        registers[rd] = registers[rs1] - registers[rs2];
+    else
+    {
+        cout << "Can't change x0 - SUB" << endl;
+        exit(0);
+    }
+}
+
+void RISCV_Instructions::SLL(string rd,string rs1,string rs2)
+{
+    
+}
 void convert_to_xbase_register(std::string &reg)
 {
     if (reg == "zero")
