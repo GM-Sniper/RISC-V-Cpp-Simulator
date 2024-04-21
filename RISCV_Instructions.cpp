@@ -7,9 +7,10 @@
 #include <bitset>
 
 using namespace std;
-RISCV_Instructions::RISCV_Instructions()
+RISCV_Instructions::RISCV_Instructions(map<std::string, uint32_t>& registers)
 {
     // Constructor implementation
+    this->registers=registers;
 }
 
 RISCV_Instructions::~RISCV_Instructions()
@@ -129,6 +130,12 @@ uint32_t LUI(uint32_t imm) {
 
 int32_t addi(int32_t reg, int32_t imm) {
     return reg + imm;
+}
+
+
+void RISCV_Instructions::add(string rd,string rs1,string rs2)
+{
+    if(rd!="X0") registers[rd]=registers[rs1]+registers[rs2];
 }
 
 void convert_to_xbase_register(std::string &reg)

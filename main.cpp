@@ -1,20 +1,18 @@
 #include <iostream>
-#include <string>
-#include <fstream>
-#include <sstream>
-#include <vector>
+// #include <string>
+// #include <fstream>
+// #include <sstream>
+// #include <vector>
 
-#include "R_format.h"
+// #include "R_format.h"
+#include "RISCV_Instructions.h"
+// #include "Registers.h"
 using namespace std;
 
-vector<RISCV_Instructions> parsefile(const std::string &filename)
-{
-    std::vector<RISCV_Instructions> instructions;
-    std::ifstream file(filename);
-    std::string line;
-}
+
 int main()
 {
-
+    RISCV_Instructions simulation;
+    simulation.
     return 0;
 }
