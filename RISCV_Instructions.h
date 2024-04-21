@@ -59,8 +59,8 @@ public:
 	void LBU(string rd,string rs1,int imm);
 	void LW(string rd,string rs1,int imm);
 	void LHU(string rd,string rs1,int imm);
-	void SB(string rd,string rs1,int imm);
-	void SH(string rd,string rs1,int imm);
+	void SB(string rs1, string rs2, int imm);
+	void SH(string rs1, string rs2, int imm);
 	void SW(string rd,string rs1,int imm);
 	void JALR(string rd,string rs1,int imm);
 	void JAL(string rd,int imm);

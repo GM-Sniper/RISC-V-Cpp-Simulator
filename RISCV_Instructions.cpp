@@ -1,11 +1,14 @@
-
 #include <iostream>
-
 #include "RISCV_Instructions.h"
-
+#include <iomanip>
+#include <algorithm>
+#include <map>
+#include <cassert>
 #include <string>
 #include <bitset>
 
+const int two_8 = 255;
+const int two_16 = 65535;
 using namespace std;
 RISCV_Instructions::RISCV_Instructions()
 {
@@ -39,115 +42,126 @@ void RISCV_Instructions::set_rd(std::string temp_rd)
 }
 
 constexpr int m_size = 1024;
-uint8_t memory[m_size];
+unsigned int memory[m_size];
 
-int8_t LB(uint32_t address)
+void RISCV_Instructions::LB(string rd, string rs1, int imm)
 {
-    if (address >= m_size)
-    {
-        throw std::runtime_error("Memory access out of bounds");
-    }
+    if (rd == "x0")
+        return;
+    int k = registers[rs1];
+    int r = (registers[rs1] + imm) % 4;
+    int address = registers[rs1] + imm - r;
 
-    int8_t value = static_cast<int8_t>(memory[address]);
-
-    return value;
+    // if (MEM.find(address) != MEM.end())
+    registers[rd] = (memory[address] << (8 * (3 - r)));
 }
-int16_t LH(uint32_t address)
+void RISCV_Instructions::LH(string rd, string rs1, int imm)
 {
+    if (rd == "x0")
+        return;
+    int r = (registers[rs1] + imm) % 4;
+    int address = registers[rs1] + imm - r;
+
     if (address >= m_size - 1)
     {
         throw std::runtime_error("Memory access out of bounds");
     }
 
-    int16_t value = static_cast<int16_t>((memory[address + 1] << 8) | memory[address]);
-
-    return value;
+    memory[address] << (8 * (2 - r)) >> 16;
 }
 
-int32_t LW(uint32_t address)
+void RISCV_Instructions::LW(string rd, string rs1, int imm)
 {
+    if (rd == "xo")
+        return;
+    int address = registers[rs1] + imm;
+
     if (address >= m_size - 3)
     {
         throw std::runtime_error("Memory access out of bounds");
     }
 
-    int32_t value = 0;
-    for (int i = 3; i >= 0; --i)
-    {
-        value = (value << 8) | memory[address + i];
-    }
-
-    return value;
+    registers[rd] = memory[address];
 }
 
-uint8_t LBU(uint32_t address)
+void RISCV_Instructions::LBU(string rd, string rs1, int imm)
 {
+    if (rd == "x0")
+        return;
+    int r = (registers[rs1] + imm) % 4;
+    int address = registers[rs1] + imm - r;
+
     if (address >= m_size)
     {
         throw std::runtime_error("Memory access out of bounds");
     }
 
-    uint8_t value = memory[address];
-
-    return value;
+    memory[address] << (8 * (3 - r)) >> 24;
 }
 
-uint16_t LHU(uint32_t address)
+void RISCV_Instructions::LHU(string rd, string rs1, int imm)
 {
+    if (rd == "x0")
+        return;
+    int r = (registers[rs1] + imm) % 4;
+    int address = registers[rs1] + imm - r;
+
     if (address >= m_size - 1)
     {
         throw std::runtime_error("Memory access out of bounds");
     }
 
-    uint16_t value = (memory[address + 1] << 8) | memory[address];
-
-    return value;
+    registers[rd] = (unsigned int)(memory[address] << (8 * (2 - r))) >> 16;
 }
 
-void SB(uint32_t address, uint8_t value)
+void RISCV_Instructions::SB(string rs1, string rs2, int imm)
 {
-    if (address >= m_size)
-    {
-        throw std::runtime_error("Memory access out of bounds");
-    }
 
-    memory[address] = value;
+    int address = registers[rs2] + imm;
+    int r = address % 4;
+    int final_address = address - r;
+
+    unsigned int byte = registers[rs1] << 24;
+    byte = byte >> 24;
+    byte = byte << 8 * r;
+
+    unsigned int x = two_8;
+    x = x << 8 * r;
+    x = ~x;
+    int edited_word = memory[final_address];
+    edited_word = ((edited_word & x) | byte);
+
+    memory[final_address] = edited_word;
+    // program_counter += 4;
 }
 
-void SH(uint32_t address, uint16_t value)
+void RISCV_Instructions::SH(string rs1, string rs2, int imm)
 {
-    if (address >= m_size - 1)
-    {
-        throw std::runtime_error("Memory access out of bounds");
-    }
+    int address = registers[rs2] + imm, r = address % 4, final_address = address - r;
 
-    memory[address] = static_cast<uint8_t>(value & 0xFF);            // Lower byte
-    memory[address + 1] = static_cast<uint8_t>((value >> 8) & 0xFF); // Upper byte
+    unsigned int half = registers[rs1] << 16;
+    half = half >> 16;
+    half = half << 8 * r;
+    unsigned int x = two_16;
+    x = x << 8 * r;
+    x = ~x;
+    int edited_word = memory[final_address];
+    edited_word = ((edited_word & x) | half);
+    memory[final_address] = edited_word;
 }
 
-void SW(uint32_t address, uint32_t value)
+void RISCV_Instructions:: SW(string rs1, string rs2, int imm)
 {
-    if (address >= m_size - 3)
-    {
-        throw std::runtime_error("Memory access out of bounds");
-    }
+    int final_address = registers[rs2] + imm;
 
-    memory[address] = static_cast<uint8_t>(value & 0xFF);
-    memory[address + 1] = static_cast<uint8_t>((value >> 8) & 0xFF);
-    memory[address + 2] = static_cast<uint8_t>((value >> 16) & 0xFF);
-    memory[address + 3] = static_cast<uint8_t>((value >> 24) & 0xFF);
+    memory[final_address] = registers[rs1];
 }
 
-uint32_t LUI(uint32_t imm)
+void RISCV_Instructions:: LUI(string rd, int imm)
 {
-    uint32_t up_part = imm & 0xFFFFF000;
-
-    return up_part;
-}
-
-int32_t addi(int32_t reg, int32_t imm)
-{
-    return reg + imm;
+    if(rd=="x0")
+    return;
+    registers[rd] = (imm << 12);
 }
 
 void RISCV_Instructions::ADD(string rd, string rs1, string rs2)
@@ -205,9 +219,8 @@ void RISCV_Instructions::SUB(string rd, string rs1, string rs2)
     }
 }
 
-void RISCV_Instructions::SLL(string rd,string rs1,string rs2)
+void RISCV_Instructions::SLL(string rd, string rs1, string rs2)
 {
-    
 }
 void convert_to_xbase_register(std::string &reg)
 {
