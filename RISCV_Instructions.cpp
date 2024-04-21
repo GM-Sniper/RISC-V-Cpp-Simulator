@@ -38,6 +38,98 @@ void RISCV_Instructions::set_rd(std::string temp_rd)
     rd= parseBinaryToFiveBit(temp_rd);
 }
 
+constexpr int m_size = 1024;
+uint8_t memory[m_size];
+
+int8_t LB(uint32_t address) {
+    if (address >= m_size) {
+        throw std::runtime_error("Memory access out of bounds");
+    }
+
+    int8_t value = static_cast<int8_t>(memory[address]);
+
+    return value;
+}
+int16_t LH(uint32_t address) {
+    if (address >= m_size - 1) {
+        throw std::runtime_error("Memory access out of bounds");
+    }
+
+    int16_t value = static_cast<int16_t>((memory[address + 1] << 8) | memory[address]);
+
+    return value;
+}
+
+int32_t LW(uint32_t address) {
+    if (address >= m_size - 3) {
+        throw std::runtime_error("Memory access out of bounds");
+    }
+
+    int32_t value = 0;
+    for (int i = 3; i >= 0; --i) {
+        value = (value << 8) | memory[address + i];
+    }
+
+    return value;
+}
+
+uint8_t LBU(uint32_t address) {
+    if (address >= m_size) {
+        throw std::runtime_error("Memory access out of bounds");
+    }
+
+    uint8_t value = memory[address];
+
+    return value;
+}
+
+uint16_t LHU(uint32_t address) {
+    if (address >= m_size - 1) {
+        throw std::runtime_error("Memory access out of bounds");
+    }
+
+    uint16_t value = (memory[address + 1] << 8) | memory[address];
+
+    return value;
+}
+
+void SB(uint32_t address, uint8_t value) {
+    if (address >= m_size) {
+        throw std::runtime_error("Memory access out of bounds");
+    }
+
+    memory[address] = value;
+}
+
+void SH(uint32_t address, uint16_t value) {
+    if (address >= m_size - 1) {
+        throw std::runtime_error("Memory access out of bounds");
+    }
+
+    memory[address] = static_cast<uint8_t>(value & 0xFF); // Lower byte
+    memory[address + 1] = static_cast<uint8_t>((value >> 8) & 0xFF); // Upper byte
+}
+
+void SW(uint32_t address, uint32_t value) {
+    if (address >= m_size - 3) {
+        throw std::runtime_error("Memory access out of bounds");
+    }
+
+    memory[address] = static_cast<uint8_t>(value & 0xFF);           
+    memory[address + 1] = static_cast<uint8_t>((value >> 8) & 0xFF);
+    memory[address + 2] = static_cast<uint8_t>((value >> 16) & 0xFF);
+    memory[address + 3] = static_cast<uint8_t>((value >> 24) & 0xFF);
+}
+
+uint32_t LUI(uint32_t imm) {
+    uint32_t up_part = imm & 0xFFFFF000;
+
+    return up_part;
+}
+
+int32_t addi(int32_t reg, int32_t imm) {
+    return reg + imm;
+}
 
 void convert_to_xbase_register(std::string &reg)
 {
