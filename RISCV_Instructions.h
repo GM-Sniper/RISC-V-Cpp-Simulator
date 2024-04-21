@@ -3,26 +3,35 @@
 #include <iostream>
 #include <string>
 
-struct FiveBitValue {
-    unsigned int value : 5; 
+struct FiveBitValue
+{
+	unsigned int value : 5;
 };
+struct SevenBitValue
+{
+	unsigned int value : 7;
+};
+
+struct ThreeBitValue
+{
+	unsigned int value : 3;
+};
+
 class RISCV_Instructions
 {
 public:
 	RISCV_Instructions();
 	~RISCV_Instructions();
-	uint32_t opcode;
-	void set_rs1(std::string rs1);
-	void set_rs2(std::string rs2);
-	void set_rd(std::string rd);
-	void convert_to_xbase_register( std:: string & reg);
-	std:: string convert_to_binary(std::string & rs);
+	SevenBitValue opcode;
+	void set_rs1(std::string temp_rs1);
+	void set_rs2(std::string temp_rs2);
+	void set_rd(std::string temp_rd);
 
 private:
-	uint32_t funct3;
-	uint32_t funct7;
+	ThreeBitValue funct3;
+	SevenBitValue funct7;
 	FiveBitValue rs1;
-	uint32_t rs2;
-	uint32_t rd;
+	FiveBitValue rs2;
+	FiveBitValue rd;
 	uint32_t imm;
 };

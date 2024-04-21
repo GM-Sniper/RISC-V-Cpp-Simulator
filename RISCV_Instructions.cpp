@@ -17,12 +17,29 @@ RISCV_Instructions::~RISCV_Instructions()
     // Destructor implementation
 }
 
-void RISCV_Instructions::set_rs1(std::string rs1)
+void RISCV_Instructions::set_rs1(std::string temp_rs1)
 {
-    
+    convert_to_xbase_register(temp_rs1);
+    temp_rs1 = convert_to_binary(temp_rs1);
+    rs1 = parseBinaryToFiveBit(temp_rs1);
 }
 
-void RISCV_Instructions::convert_to_xbase_register(std::string &reg)
+void RISCV_Instructions::set_rs2(std::string temp_rs2)
+{
+    convert_to_xbase_register(temp_rs2);
+    temp_rs2 = convert_to_binary(temp_rs2);
+    rs2 = parseBinaryToFiveBit(temp_rs2);
+}
+
+void RISCV_Instructions::set_rd(std::string temp_rd)
+{
+    convert_to_xbase_register(temp_rd);
+    temp_rd= convert_to_binary(temp_rd);
+    rd= parseBinaryToFiveBit(temp_rd);
+}
+
+
+void convert_to_xbase_register(std::string &reg)
 {
     if (reg == "zero")
     {
@@ -154,11 +171,22 @@ void RISCV_Instructions::convert_to_xbase_register(std::string &reg)
     }
 }
 
-string RISCV_Instructions::convert_to_binary(std::string &rs)
+string convert_to_binary(std::string &rs)
 {
     std::string substring = rs.substr(1);
     int num = std::stoi(substring);
-    std::bitset<32> binaryNum(num);
+    std::bitset<5> binaryNum(num);
 
     return binaryNum.to_string();
+}
+
+FiveBitValue parseBinaryToFiveBit(const std::string &binaryString)
+{
+
+    unsigned int parsedValue = std::bitset<5>(binaryString).to_ulong();
+
+    FiveBitValue result;
+    result.value = parsedValue;
+
+    return result;
 }
