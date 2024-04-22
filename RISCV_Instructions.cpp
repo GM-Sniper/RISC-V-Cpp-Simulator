@@ -42,120 +42,136 @@ void RISCV_Instructions::set_rd(std::string temp_rd)
 }
 
 constexpr int m_size = 1024;
-unsigned int memory[m_size];
+map<int,unsigned int>  memory;
 
-void RISCV_Instructions::LB(string rd, string rs1, int imm)
-{
-    if (rd == "x0")
-        return;
-    int k = registers[rs1];
-    int r = (registers[rs1] + imm) % 4;
-    int address = registers[rs1] + imm - r;
+void RISCV_Instructions:: LB(std::string rd, std::string rs1, int imm) {
+        if (rd == "x0")
+            return;
 
-    // if (MEM.find(address) != MEM.end())
-    registers[rd] = (memory[address] << (8 * (3 - r)));
-}
-void RISCV_Instructions::LH(string rd, string rs1, int imm)
-{
-    if (rd == "x0")
-        return;
-    int r = (registers[rs1] + imm) % 4;
-    int address = registers[rs1] + imm - r;
+        int k = registers[rs1];
+        int r = (registers[rs1] + imm) % 4;
+        int address = registers[rs1] + imm - r;
 
-    if (address >= m_size - 1)
-    {
-        throw std::runtime_error("Memory access out of bounds");
+        // Check if the address is already in memory, if not, initialize it
+        if (memory.find(address) == memory.end()) {
+            std::cerr << "Error: Memory access out of bounds" << std::endl;
+            exit(100);
+        }
+
+        registers[rd] = (memory[address] << (8 * (3 - r)));
+
+};
+ void RISCV_Instructions:: LH(std::string rd, std::string rs1, int imm) {
+        if (rd == "x0")
+            return;
+
+        int r = (registers[rs1] + imm) % 4;
+        int address = registers[rs1] + imm - r;
+
+        if (memory.find(address) == memory.end()) {
+            std::cerr << "Error: Memory access out of bounds" << std::endl;
+            exit(101);
+        }
+
+        registers[rd] = (memory[address] << (8 * (2 - r))) >> 16;
+    
+};
+void RISCV_Instructions:: LW(std::string rd, std::string rs1, int imm) {
+        if (rd == "xo")
+            return;
+
+        int address = registers[rs1] + imm;
+
+        // Check if the address is within the valid memory range
+        if (memory.find(address) == memory.end()) {
+            std::cerr << "Error: Memory access out of bounds" << std::endl;
+            exit(102);
+        }
+        registers[rd] = memory[address];
     }
+void RISCV_Instructions:: LBU(std::string rd, std::string rs1, int imm) {
+        if (rd == "x0")
+            return;
 
-    memory[address] << (8 * (2 - r)) >> 16;
-}
+        int r = (registers[rs1] + imm) % 4;
+        int address = registers[rs1] + imm - r;
 
-void RISCV_Instructions::LW(string rd, string rs1, int imm)
-{
-    if (rd == "xo")
-        return;
-    int address = registers[rs1] + imm;
+        if (memory.find(address) == memory.end()) {
+            std::cerr << "Error: Memory access out of bounds" << std::endl;
+            exit(103);
+        }
 
-    if (address >= m_size - 3)
-    {
-        throw std::runtime_error("Memory access out of bounds");
-    }
+        registers[rd] = (memory[address] << (8 * (3 - r))) >> 24;
+    
+};
 
-    registers[rd] = memory[address];
-}
+void  RISCV_Instructions:: LHU(std::string rd, std::string rs1, int imm) {
+        if (rd == "x0")
+            return;
 
-void RISCV_Instructions::LBU(string rd, string rs1, int imm)
-{
-    if (rd == "x0")
-        return;
-    int r = (registers[rs1] + imm) % 4;
-    int address = registers[rs1] + imm - r;
+        int r = (registers[rs1] + imm) % 4;
+        int address = registers[rs1] + imm - r;
 
-    if (address >= m_size)
-    {
-        throw std::runtime_error("Memory access out of bounds");
-    }
+        if (memory.find(address) == memory.end()) {
+            std::cerr << "Error: Memory access out of bounds" << std::endl;
+            exit(104);
+        }
 
-    memory[address] << (8 * (3 - r)) >> 24;
-}
+        registers[rd] = (unsigned int)(memory[address] << (8 * (2 - r))) >> 16;
+    
+};
+void RISCV_Instructions:: SB(std::string rs1, std::string rs2, int imm) {
+        int address = registers[rs2] + imm;
+        int r = address % 4;
+        int final_address = address - r;
 
-void RISCV_Instructions::LHU(string rd, string rs1, int imm)
-{
-    if (rd == "x0")
-        return;
-    int r = (registers[rs1] + imm) % 4;
-    int address = registers[rs1] + imm - r;
+        if (memory.find(final_address) == memory.end()) {
+            std::cerr << "Error: Memory access out of bounds" << std::endl;
+            exit(105);
+        }
 
-    if (address >= m_size - 1)
-    {
-        throw std::runtime_error("Memory access out of bounds");
-    }
+        unsigned int byte = registers[rs1] & 0xFF; // Extract the least significant byte
 
-    registers[rd] = (unsigned int)(memory[address] << (8 * (2 - r))) >> 16;
-}
+        // Shift the byte to the correct position based on the remainder
+        byte <<= (8 * r);
 
-void RISCV_Instructions::SB(string rs1, string rs2, int imm)
-{
+        // Mask out the existing byte at the memory location
+        unsigned int mask = ~(0xFF << (8 * r));
+        memory[final_address] = (memory[final_address] & mask) | byte;
+    
+};
+void RISCV_Instructions:: SH(std::string rs1, std::string rs2, int imm) {
+        int address = registers[rs2] + imm;
+        int r = address % 4;
+        int final_address = address - r;
 
-    int address = registers[rs2] + imm;
-    int r = address % 4;
-    int final_address = address - r;
+        if (memory.find(final_address) == memory.end()) {
+            std::cerr << "Error: Memory access out of bounds" << std::endl;
+            exit(106);
+        }
 
-    unsigned int byte = registers[rs1] << 24;
-    byte = byte >> 24;
-    byte = byte << 8 * r;
+        unsigned int half = registers[rs1] & 0xFFFF; // Extract the least significant halfword
 
-    unsigned int x = two_8;
-    x = x << 8 * r;
-    x = ~x;
-    int edited_word = memory[final_address];
-    edited_word = ((edited_word & x) | byte);
+        // Shift the halfword to the correct position based on the remainder
+        half <<= (8 * r);
 
-    memory[final_address] = edited_word;
-    // program_counter += 4;
-}
+        // Mask out the existing halfword at the memory location
+        unsigned int mask = ~(0xFFFF << (8 * r));
+        memory[final_address] = (memory[final_address] & mask) | half;
+    
+};
 
-void RISCV_Instructions::SH(string rs1, string rs2, int imm)
-{
-    int address = registers[rs2] + imm, r = address % 4, final_address = address - r;
+void RISCV_Instructions:: SW(std::string rs1, std::string rs2, int imm) {
+        int final_address = registers[rs2] + imm;
 
-    unsigned int half = registers[rs1] << 16;
-    half = half >> 16;
-    half = half << 8 * r;
-    unsigned int x = two_16;
-    x = x << 8 * r;
-    x = ~x;
-    int edited_word = memory[final_address];
-    edited_word = ((edited_word & x) | half);
-    memory[final_address] = edited_word;
-}
+        if (memory.find(final_address) == memory.end()) {
+            std::cerr << "Error: Memory access out of bounds" << std::endl;
+            exit(107);
+        }
 
-void RISCV_Instructions:: SW(string rs1, string rs2, int imm)
-{
-    int final_address = registers[rs2] + imm;
-
-    memory[final_address] = registers[rs1];
-}
+        memory[final_address] = registers[rs1];
+    
+};
 
 void RISCV_Instructions:: LUI(string rd, int imm)
 {
