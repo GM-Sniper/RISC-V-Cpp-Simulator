@@ -247,6 +247,47 @@ void RISCV_Instructions::SUB(string rd, string rs1, string rs2)
 void RISCV_Instructions::SLL(string rd, string rs1, string rs2)
 {
 }
+void RISCV_Instructions::parsingAssemblyCode(string filename)
+{
+ifstream file(filename);
+    if (!file.is_open()) {
+        cerr << "Error opening file: " << filename << endl;
+        return;
+    }
+
+    string line;
+    while (getline(file, line)) {
+
+        // Trim leading and trailing whitespaces from the line
+        line.erase(0, line.find_first_not_of(" \t\r\n"));
+        line.erase(line.find_last_not_of(" \t\r\n") + 1);
+        transform(line.begin(), line.end(), line.begin(), ::tolower);
+
+        if (!line.empty()) {
+              // Check if the line contains a label
+        if (line.find(':') != string::npos) {
+            // Extract label and initialize parts
+            istringstream lineStream(line);
+            string label;
+            getline(lineStream, label, ':');
+            if (isdigit(label[0])) {
+                cerr << "First character of label cannot be a digit " << label << endl;
+                return;
+            }
+             // Store label and its memory address
+            labelMap[label] = programCounter;
+        }
+        else
+        {
+            // No label, just store the instruction and update memory address
+            cout << "Instruction: " << line << ", Address: " << programCounter << endl;
+            programCounter += 4; // Assuming each instruction takes 4 bytes in memory
+        }
+    }
+
+    file.close();
+}
+}
 void convert_to_xbase_register(std::string &reg)
 {
     if (reg == "zero")

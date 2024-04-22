@@ -76,4 +76,15 @@ private:
 	FiveBitValue rs2;
 	FiveBitValue rd;
 	uint32_t imm;
+	struct Instruction {
+    	string rs1;
+    	string rs2;
+    	int imm;
+    	string rd;
+	};
+	void parsingAssemblyCode(string filename);
+    	int programCounter;
+    	map<string,int> labelMap;
+    	vector<Instruction> instructions;
+	
 };
