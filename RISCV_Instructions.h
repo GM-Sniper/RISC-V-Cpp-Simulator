@@ -64,13 +64,13 @@ public:
 	void SH(string rs1, string rs2, int imm);
 	void SW(string rd,string rs1,int imm);
 	void JALR(string rd,string rs1,int imm);
-	void JAL(string rd,int imm);
+	void JAL(string rd,string label);
 	void LUI(string rd,int imm);
 	void AUIPC(string rd,int imm);
 
 private:
 	void holding();
-	map<std::string, uint32_t> registers;
+	map<std::string, int> registers;
 	map<std::string, uint8_t> opcodes;
 	map<string,uint32_t> labelMap;
 	ThreeBitValue funct3;

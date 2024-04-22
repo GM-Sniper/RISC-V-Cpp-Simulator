@@ -61,6 +61,7 @@ void RISCV_Instructions::LB(std::string rd, std::string rs1, int imm)
     }
 
     registers[rd] = (memory[address] << (8 * (3 - r)));
+    programCounter += 4;
 };
 void RISCV_Instructions::LH(std::string rd, std::string rs1, int imm)
 {
@@ -77,6 +78,7 @@ void RISCV_Instructions::LH(std::string rd, std::string rs1, int imm)
     }
 
     registers[rd] = (memory[address] << (8 * (2 - r))) >> 16;
+    programCounter += 4;
 };
 void RISCV_Instructions::LW(std::string rd, std::string rs1, int imm)
 {
@@ -92,6 +94,7 @@ void RISCV_Instructions::LW(std::string rd, std::string rs1, int imm)
         exit(102);
     }
     registers[rd] = memory[address];
+    programCounter += 4;
 }
 void RISCV_Instructions::LBU(std::string rd, std::string rs1, int imm)
 {
@@ -108,6 +111,7 @@ void RISCV_Instructions::LBU(std::string rd, std::string rs1, int imm)
     }
 
     registers[rd] = (memory[address] << (8 * (3 - r))) >> 24;
+    programCounter += 4;
 };
 
 void RISCV_Instructions::LHU(std::string rd, std::string rs1, int imm)
@@ -125,6 +129,7 @@ void RISCV_Instructions::LHU(std::string rd, std::string rs1, int imm)
     }
 
     registers[rd] = (unsigned int)(memory[address] << (8 * (2 - r))) >> 16;
+    programCounter += 4;
 };
 void RISCV_Instructions::SB(std::string rs1, std::string rs2, int imm)
 {
@@ -146,6 +151,7 @@ void RISCV_Instructions::SB(std::string rs1, std::string rs2, int imm)
     // Mask out the existing byte at the memory location
     unsigned int mask = ~(0xFF << (8 * r));
     memory[final_address] = (memory[final_address] & mask) | byte;
+    programCounter += 4;
 };
 void RISCV_Instructions::SH(std::string rs1, std::string rs2, int imm)
 {
@@ -167,6 +173,7 @@ void RISCV_Instructions::SH(std::string rs1, std::string rs2, int imm)
     // Mask out the existing halfword at the memory location
     unsigned int mask = ~(0xFFFF << (8 * r));
     memory[final_address] = (memory[final_address] & mask) | half;
+    programCounter += 4;
 };
 
 void RISCV_Instructions::SW(std::string rs1, std::string rs2, int imm)
@@ -180,6 +187,7 @@ void RISCV_Instructions::SW(std::string rs1, std::string rs2, int imm)
     }
 
     memory[final_address] = registers[rs1];
+    programCounter += 4;
 };
 
 void RISCV_Instructions::LUI(string rd, int imm)
@@ -187,6 +195,7 @@ void RISCV_Instructions::LUI(string rd, int imm)
     if (rd == "x0")
         return;
     registers[rd] = (imm << 12);
+    programCounter += 4;
 }
 
 void RISCV_Instructions::ADD(string rd, string rs1, string rs2)
@@ -198,6 +207,7 @@ void RISCV_Instructions::ADD(string rd, string rs1, string rs2)
         cout << "Can't add to x0" << endl;
         exit(0);
     }
+    programCounter += 4;
 }
 
 void RISCV_Instructions::ADDI(string rd, string rs1, int imm)
@@ -209,6 +219,7 @@ void RISCV_Instructions::ADDI(string rd, string rs1, int imm)
         cout << "Can't add to x0" << endl;
         exit(1);
     }
+    programCounter += 4;
 }
 
 void RISCV_Instructions::AND(string rd, string rs1, string rs2)
@@ -220,6 +231,7 @@ void RISCV_Instructions::AND(string rd, string rs1, string rs2)
         cout << "Can't and to x0" << endl;
         exit(2);
     }
+    programCounter += 4;
 }
 
 void RISCV_Instructions::ANDI(string rd, string rs1, int imm)
@@ -231,6 +243,7 @@ void RISCV_Instructions::ANDI(string rd, string rs1, int imm)
         cout << "Can't and to x0" << endl;
         exit(2);
     }
+    programCounter += 4;
 }
 
 void RISCV_Instructions::SUB(string rd, string rs1, string rs2)
@@ -242,35 +255,335 @@ void RISCV_Instructions::SUB(string rd, string rs1, string rs2)
         cout << "Can't change x0 - SUB" << endl;
         exit(0);
     }
+    programCounter += 4;
 }
-
 void RISCV_Instructions::SLL(string rd, string rs1, string rs2)
 {
+    if (rd != "X0")
+        registers[rd] = registers[rs1] << registers[rs2];
+    else
+    {
+        cout << "Can't change x0 - SLL" << endl;
+        exit(0);
+    }
+    programCounter += 4;
 }
-void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction> &instructions,  map<string,int> &labelMap)
+
+void RISCV_Instructions::SRL(string rd, string rs1, string rs2)
+{
+    if (rd != "X0")
+        registers[rd] = registers[rs1] >> registers[rs2];
+    else
+    {
+        cout << "Can't change x0 - SLL" << endl;
+        exit(0);
+    }
+    programCounter += 4;
+}
+void RISCV_Instructions::SLT(string rd, string rs1, string rs2)
+{
+    if (rd != "X0")
+    {
+        if (registers[rs1] < registers[rs2])
+            registers[rd] = 1;
+    }
+    else
+    {
+        cout << "Can't change x0 - SLT" << endl;
+        exit(0);
+    }
+    programCounter += 4;
+}
+
+void RISCV_Instructions::SLTU(string rd, string rs1, string rs2)
+{
+    if (rd != "X0")
+    {
+        if ((unsigned int)registers[rs1] < (unsigned int)registers[rs2])
+            registers[rd] = 1;
+    }
+    else
+    {
+        cout << "Can't change x0 - SLTU" << endl;
+        exit(0);
+    }
+    programCounter += 4;
+}
+
+void RISCV_Instructions::XOR(string rd, string rs1, string rs2)
+{
+    if (rd != "X0")
+    {
+        registers[rd] = registers[rs1] ^ registers[rs2];
+    }
+    else
+    {
+        cout << "Can't change x0 - SLT" << endl;
+        exit(0);
+    }
+    programCounter += 4;
+}
+
+void RISCV_Instructions::SRA(string rd, string rs1, string rs2)
+{
+    if (rd != "X0")
+        registers[rd] = registers[rs1] << registers[rs2];
+    else
+    {
+        cout << "Can't change x0 - SRA" << endl;
+        exit(0);
+    }
+    programCounter += 4;
+}
+
+void RISCV_Instructions::SRL(string rd, string rs1, string rs2)
+{
+    if (rd != "X0")
+        registers[rd] = registers[rs1] << registers[rs2];
+    else
+    {
+        cout << "Can't change x0 - SRL" << endl;
+        exit(0);
+    }
+    programCounter += 4;
+}
+
+void RISCV_Instructions::OR(string rd, string rs1, string rs2)
+{
+    if (rd != "X0")
+        registers[rd] = registers[rs1] | registers[rs2];
+    else
+    {
+        cout << "Can't change x0 - OR" << endl;
+        exit(0);
+    }
+    programCounter += 4;
+}
+void RISCV_Instructions::SLTI(string rd, string rs1, int imm)
+{
+    if (rd != "X0")
+    {
+        if (registers[rs1] < imm)
+            registers[rd] = 1;
+    }
+    else
+    {
+        cout << "Can't change x0 - SLTI" << endl;
+        exit(0);
+    }
+    programCounter += 4;
+}
+void RISCV_Instructions::SLTIU(string rd, string rs1, int imm)
+{
+    if (rd != "X0")
+    {
+        if ((unsigned int)registers[rs1] < imm)
+            registers[rd] = 1;
+    }
+    else
+    {
+        cout << "Can't change x0 - SLTIU" << endl;
+        exit(0);
+    }
+    programCounter += 4;
+}
+
+void RISCV_Instructions::XORI(string rd, string rs1, int imm)
+{
+    if (rd != "X0")
+    {
+        registers[rd] = registers[rs1] ^ imm;
+    }
+    else
+    {
+        cout << "Can't change x0 - XORI" << endl;
+        exit(0);
+    }
+    programCounter += 4;
+}
+
+void RISCV_Instructions::ORI(string rd, string rs1, int imm)
+{
+    if (rd != "X0")
+    {
+        registers[rd] = registers[rs1] | imm;
+    }
+    else
+    {
+        cout << "Can't change x0 - ORI" << endl;
+        exit(0);
+    }
+    programCounter += 4;
+}
+
+void RISCV_Instructions::SLLI(string rd, string rs1, int imm)
+{
+    if (rd != "X0")
+        registers[rd] = registers[rs1] << imm;
+    else
+    {
+        cout << "Can't change x0 - SLLI" << endl;
+        exit(0);
+    }
+    programCounter += 4;
+}
+
+void RISCV_Instructions::SRLI(string rd, string rs1, int imm)
+{
+    if (rd != "X0")
+        registers[rd] = registers[rs1] >> imm;
+    else
+    {
+        cout << "Can't change x0 - SRLI" << endl;
+        exit(0);
+    }
+    programCounter += 4;
+}
+
+void RISCV_Instructions::SRAI(string rd, string rs1, int imm)
+{
+    if (rd != "X0")
+        registers[rd] = registers[rs1] >> imm;
+    else
+    {
+        cout << "Can't change x0 - SRAI" << endl;
+        exit(0);
+    }
+    programCounter += 4;
+}
+void RISCV_Instructions::BEQ(string rs1, string rs2, string label)
+{
+    if (!labelMap.count(label))
+    {
+        cerr << "Trying to jump to a non existing label- BEQ " << endl;
+        exit(200);
+    }
+    if (registers[rs1] == registers[rs2])
+        programCounter = labelMap[label];
+    else
+        programCounter += 4;
+}
+
+void RISCV_Instructions::BGE(string rs1, string rs2, string label)
+{
+    if (!labelMap.count(label))
+    {
+        cerr << "Trying to jump to a non existing label- BGE " << endl;
+        exit(201);
+    }
+    if (registers[rs1] >= registers[rs2])
+        programCounter = labelMap[label];
+    else
+        programCounter += 4;
+}
+
+void RISCV_Instructions::BNE(string rs1, string rs2, string label)
+{
+    if (!labelMap.count(label))
+    {
+        cerr << "Trying to jump to a non existing label- BGE " << endl;
+        exit(201);
+    }
+    if (registers[rs1] != registers[rs2])
+        programCounter = labelMap[label];
+    else
+        programCounter += 4;
+}
+
+void RISCV_Instructions::BGEU(string rs1, string rs2, string label)
+{
+    if (!labelMap.count(label))
+    {
+        cerr << "Trying to jump to a non existing label- BGEU" << endl;
+        exit(202);
+    }
+    if ((unsigned int)(registers[rs1]) >= (unsigned int)(registers[rs2]))
+        programCounter = labelMap[label];
+    else
+        programCounter += 4;
+}
+
+void RISCV_Instructions::BLTU(string rs1, string rs2, string label)
+{
+    if (!labelMap.count(label))
+    {
+        cerr << "Trying to jump to a non existing label- BGEU" << endl;
+        exit(203);
+    }
+    if ((unsigned int)(registers[rs1]) < (unsigned int)(registers[rs2]))
+        programCounter = labelMap[label];
+    else
+        programCounter += 4;
+}
+
+void RISCV_Instructions::JALR(string rd, string rs1, int imm) // Still need to check the restrictions on changing X0
+{
+    registers[rd] = programCounter + 4;
+    programCounter = registers[rs1] + imm;
+}
+
+void RISCV_Instructions::JAL(string rd, string label)
+{
+    if (!labelMap.count(label))
+    {
+        cerr << "Trying to jump to a non existing label- jal" << endl;
+        exit(205);
+    }
+    if (rd != "X0")
+    {
+        registers[rd] = programCounter + 4;
+        programCounter = labelMap[label];
+    }
+    else
+    {
+        cout << "Can't Change X0 - JAL " << endl;
+        exit(210);
+    }
+}
+
+void RISCV_Instructions::AUIPC(string rd, int imm)
+{
+    if (rd != "X0")
+    {
+        registers[rd] = programCounter + (imm << 12);
+        programCounter += 4;
+    }
+    else
+    {
+        cout << "Can't Change X0 - AUIPC" << endl;
+        exit(211);
+    }
+}
+
+void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction> &instructions, map<string, int> &labelMap)
 {
     ifstream file(filename);
-    if (!file.is_open()) {
+    if (!file.is_open())
+    {
         cerr << "Error opening file: " << filename << endl;
         return;
     }
 
     string line;
-    while (getline(file, line)) {
+    while (getline(file, line))
+    {
 
         // Trim leading and trailing whitespaces from the line
         line.erase(0, line.find_first_not_of(" \t\r\n"));
         line.erase(line.find_last_not_of(" \t\r\n") + 1);
         transform(line.begin(), line.end(), line.begin(), ::tolower);
 
-        if (!line.empty()) {
+        if (!line.empty())
+        {
             // Check if the line contains a label
-            if (line.find(':') != string::npos) {
+            if (line.find(':') != string::npos)
+            {
                 // Extract label and initialize parts
                 istringstream lineStream(line);
                 string label;
                 getline(lineStream, label, ':');
-                if (isdigit(label[0])) {
+                if (isdigit(label[0]))
+                {
                     cerr << "First character of label cannot be a digit " << label << endl;
                     return;
                 }
@@ -279,30 +592,37 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
             }
             else
             {
-            Instruction instr;
+                Instruction instr;
                 // No label, just store the instruction and update memory address
-            cout << "Instruction: " << line << ", Address: " << programCounter << endl;
-            istringstream iss(line);
-            string instructionName;
-            if (iss >> instructionName) {
-            cout << "Instruction Name: " << instructionName << endl;
-            int opcode=opcodes[instructionName];
-            switch(opcode){
-                 case 0x33: // R-type instructions
-                    // Parse the operands for R-type instructions
-                    // Example: "add x10, x11, x12"
-                    if (iss >> instr.rd && iss.ignore() && iss >> instr.rs1 && iss.ignore() && iss >> instr.rs2) {
-                        // Set the immediate field to 0 for R-type instructions
-                        instr.imm = 0;
-                    } else {
-                        cerr << "Invalid R-type instruction line: " << line << endl;
+                cout << "Instruction: " << line << ", Address: " << programCounter << endl;
+                istringstream iss(line);
+                string instructionName;
+                if (iss >> instructionName)
+                {
+                    cout << "Instruction Name: " << instructionName << endl;
+                    int opcode = opcodes[instructionName];
+                    switch (opcode)
+                    {
+                    case 0x33: // R-type instructions
+                        // Parse the operands for R-type instructions
+                        // Example: "add x10, x11, x12"
+                        if (iss >> instr.rd && iss.ignore() && iss >> instr.rs1 && iss.ignore() && iss >> instr.rs2)
+                        {
+                            // Set the immediate field to 0 for R-type instructions
+                            instr.imm = 0;
+                        }
+                        else
+                        {
+                            cerr << "Invalid R-type instruction line: " << line << endl;
+                        }
+                        break;
+                        // Add cases for other instruction types
                     }
-                    break;
-                // Add cases for other instruction types
-            }
-    } else {
-        cerr << "Invalid instruction line: " << line << endl;
-    }
+                }
+                else
+                {
+                    cerr << "Invalid instruction line: " << line << endl;
+                }
 
                 programCounter += 4; // Assuming each instruction takes 4 bytes in memory
             }
@@ -311,28 +631,34 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
         file.close();
     }
 }
-void RISCV_Instructions::processOpcode(map<std::string, uint8_t>& opcodes)
-{   string filename="Opcodes.txt";
+
+void RISCV_Instructions::processOpcode(map<std::string, uint8_t> &opcodes)
+{
+    string filename = "Opcodes.txt";
     ifstream file(filename);
-    if (!file.is_open()) {
+    if (!file.is_open())
+    {
         cerr << "Error opening file: " << filename << endl;
         return;
     }
-   
-     string line;
-    while (getline(file, line)) {
+
+    string line;
+    while (getline(file, line))
+    {
         istringstream iss(line);
         string instruction;
         int opcode;
-        if (getline(iss, instruction, ',') && (iss >> opcode)) {
+        if (getline(iss, instruction, ',') && (iss >> opcode))
+        {
             opcodes[instruction] = opcode;
-        } else {
+        }
+        else
+        {
             cerr << "Invalid line: " << line << endl;
         }
     }
 
     file.close();
-
 }
 void convert_to_xbase_register(std::string &reg)
 {
@@ -474,7 +800,7 @@ string convert_to_binary(std::string &rs)
 
     return binaryNum.to_string();
 }
- 
+
 FiveBitValue parseBinaryToFiveBit(const std::string &binaryString)
 {
 
