@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <unordered_map>
 using namespace std;
 struct FiveBitValue
 {
@@ -70,6 +71,8 @@ public:
 private:
 	void holding();
 	map<std::string, uint32_t> registers;
+	map<std::string, uint8_t> opcodes;
+	map<string,uint32_t> labelMap;
 	ThreeBitValue funct3;
 	SevenBitValue funct7;
 	FiveBitValue rs1;
@@ -81,10 +84,11 @@ private:
     	string rs2;
     	int imm;
     	string rd;
+		string label;
 	};
-	void parsingAssemblyCode(string filename);
-    	int programCounter;
-    	map<string,int> labelMap;
-    	vector<Instruction> instructions;
+	void processOpcode(map<std::string, uint8_t>& opcodes);
+	void parsingAssemblyCode(string filename, vector<Instruction> &instructions, map<string,int> &labelMap);
+    int programCounter;
+    vector<Instruction> instructions;
 	
 };

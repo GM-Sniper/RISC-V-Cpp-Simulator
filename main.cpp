@@ -13,6 +13,5 @@ using namespace std;
 int main()
 {
     RISCV_Instructions simulation;
-    simulation.
     return 0;
 }

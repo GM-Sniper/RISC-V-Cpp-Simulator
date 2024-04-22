@@ -247,9 +247,9 @@ void RISCV_Instructions::SUB(string rd, string rs1, string rs2)
 void RISCV_Instructions::SLL(string rd, string rs1, string rs2)
 {
 }
-void RISCV_Instructions::parsingAssemblyCode(string filename)
+void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction> &instructions,  map<string,int> &labelMap)
 {
-ifstream file(filename);
+    ifstream file(filename);
     if (!file.is_open()) {
         cerr << "Error opening file: " << filename << endl;
         return;
@@ -264,29 +264,75 @@ ifstream file(filename);
         transform(line.begin(), line.end(), line.begin(), ::tolower);
 
         if (!line.empty()) {
-              // Check if the line contains a label
-        if (line.find(':') != string::npos) {
-            // Extract label and initialize parts
-            istringstream lineStream(line);
-            string label;
-            getline(lineStream, label, ':');
-            if (isdigit(label[0])) {
-                cerr << "First character of label cannot be a digit " << label << endl;
-                return;
+            // Check if the line contains a label
+            if (line.find(':') != string::npos) {
+                // Extract label and initialize parts
+                istringstream lineStream(line);
+                string label;
+                getline(lineStream, label, ':');
+                if (isdigit(label[0])) {
+                    cerr << "First character of label cannot be a digit " << label << endl;
+                    return;
+                }
+                // Store label and its memory address
+                labelMap[label] = programCounter;
             }
-             // Store label and its memory address
-            labelMap[label] = programCounter;
-        }
-        else
-        {
-            // No label, just store the instruction and update memory address
+            else
+            {
+            Instruction instr;
+                // No label, just store the instruction and update memory address
             cout << "Instruction: " << line << ", Address: " << programCounter << endl;
-            programCounter += 4; // Assuming each instruction takes 4 bytes in memory
+            istringstream iss(line);
+            string instructionName;
+            if (iss >> instructionName) {
+            cout << "Instruction Name: " << instructionName << endl;
+            int opcode=opcodes[instructionName];
+            switch(opcode){
+                 case 0x33: // R-type instructions
+                    // Parse the operands for R-type instructions
+                    // Example: "add x10, x11, x12"
+                    if (iss >> instr.rd && iss.ignore() && iss >> instr.rs1 && iss.ignore() && iss >> instr.rs2) {
+                        // Set the immediate field to 0 for R-type instructions
+                        instr.imm = 0;
+                    } else {
+                        cerr << "Invalid R-type instruction line: " << line << endl;
+                    }
+                    break;
+                // Add cases for other instruction types
+            }
+    } else {
+        cerr << "Invalid instruction line: " << line << endl;
+    }
+
+                programCounter += 4; // Assuming each instruction takes 4 bytes in memory
+            }
+        }
+
+        file.close();
+    }
+}
+void RISCV_Instructions::processOpcode(map<std::string, uint8_t>& opcodes)
+{   string filename="Opcodes.txt";
+    ifstream file(filename);
+    if (!file.is_open()) {
+        cerr << "Error opening file: " << filename << endl;
+        return;
+    }
+   
+     string line;
+    while (getline(file, line)) {
+        istringstream iss(line);
+        string instruction;
+        int opcode;
+        if (getline(iss, instruction, ',') && (iss >> opcode)) {
+            opcodes[instruction] = opcode;
+        } else {
+            cerr << "Invalid line: " << line << endl;
         }
     }
 
     file.close();
-}
+
 }
 void convert_to_xbase_register(std::string &reg)
 {
@@ -428,7 +474,7 @@ string convert_to_binary(std::string &rs)
 
     return binaryNum.to_string();
 }
-
+ 
 FiveBitValue parseBinaryToFiveBit(const std::string &binaryString)
 {
 
