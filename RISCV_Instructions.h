@@ -90,5 +90,6 @@ private:
 	void parsingAssemblyCode(string filename, vector<Instruction> &instructions, map<string,int> &labelMap);
     int programCounter;
     vector<Instruction> instructions;
+	void simulation();
 	
 };

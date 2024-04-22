@@ -811,3 +811,12 @@ FiveBitValue parseBinaryToFiveBit(const std::string &binaryString)
 
     return result;
 }
+void RISCV_Instructions::simulation()
+{
+     std::cout << "Register" << "\t" << "Decimal" << "\t" << "Hexadecimal" << "\t" << "Binary" << std::endl;
+    std::cout << "------------------------------------------------------------------" << std::endl;
+
+    for (auto it = registers.begin(); it != registers.end(); ++it) {
+        std::cout << "       " <<  it->first<< "\t" << it->second<< "\t" << std::hex << it->second<< "\t" << std::bitset<32>(it->second) << std::dec << std::endl;
+    }
+}
