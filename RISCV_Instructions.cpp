@@ -10,6 +10,19 @@
 const int two_8 = 255;
 const int two_16 = 65535;
 using namespace std;
+string removeCommas(const string& input) {
+    string result = input;
+    result.erase(remove(result.begin(), result.end(), ','), result.end());
+    return result;
+}
+
+// Function to remove brackets from a string
+string removeBrackets(const string& input) {
+    string result = input;
+    result.erase(remove(result.begin(), result.end(), '('), result.end());
+    result.erase(remove(result.begin(), result.end(), ')'), result.end());
+    return result;
+}
 RISCV_Instructions::RISCV_Instructions()
 {
     // Constructor implementation
@@ -567,7 +580,6 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
     string line;
     while (getline(file, line))
     {
-
         // Trim leading and trailing whitespaces from the line
         line.erase(0, line.find_first_not_of(" \t\r\n"));
         line.erase(line.find_last_not_of(" \t\r\n") + 1);
@@ -575,10 +587,25 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
 
         if (!line.empty())
         {
+
             // Check if the line contains a label
             if (line.find(':') != string::npos)
-            {
-                // Extract label and initialize parts
+            {   
+                line.erase(remove(line.begin(), line.end(), ' '), line.end());
+                int position=-1;
+                for(int i=0;i<line.size();i++)
+                {
+                    if(line[i]==':')
+                    {
+                        position=i;
+                    }
+                }
+                if(line.at(position+1)!='\n'||line.at(position+1)!='\t')
+                {
+                    cerr << "Cannot write Insturction after Label, please rewrite the syntex error" << endl;
+                    exit(51);
+                }
+                // Extract label and its memory address
                 istringstream lineStream(line);
                 string label;
                 getline(lineStream, label, ':');
@@ -610,6 +637,11 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
                         {
                             // Set the immediate field to 0 for R-type instructions
                             instr.imm = 0;
+                            // Remove commas from the operands
+                            instr.rd = removeCommas(instr.rd);
+                            instr.rs1 = removeCommas(instr.rs1);
+                            instr.rs2 = removeCommas(instr.rs2);
+
                         }
                         else
                         {
@@ -617,7 +649,149 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
                         }
                         break;
                         // Add cases for other instruction types
+                    case 0x13: // I-type instructions
+                        // Parse the operands for I-type instructions
+                        // Example: "addi x10, x11, 10"
+                        if (iss >> instr.rd && iss.ignore() && iss >> instr.rs1 && iss.ignore() && iss >> instr.imm)
+                        {
+                            // Set the rs2 field to 0 for I-type instructions
+                            instr.rs2 = "";
+                            // Remove commas from the operands
+                            instr.rd = removeCommas(instr.rd);
+                            instr.rs1 = removeCommas(instr.rs1);
+                        }
+                        else
+                        {
+                            cerr << "Invalid I-type instruction line: " << line << endl;
+                        }
+                        break;
+                   case 0x23: // S-type instructions
+                    // Parse the operands for S-type instructions
+                    // Example: "sw x10, 10(x11)"
+                    char comma;
+                    int offset;
+                    if (iss >> instr.rs2 >> offset >> comma >> instr.rs1)
+                    {
+                        // Extract the immediate value from the offset
+                        instr.imm = offset;
+                        // Set the rd field to 0 for S-type instructions
+                        instr.rd = "";
+                        // Remove commas from the operands
+                        instr.rs2 = removeCommas(instr.rs2);
+                        instr.rs1 = removeCommas(instr.rs1);
+                        // Remove brackets from the operands
+                        instr.rs2 = removeBrackets(instr.rs2);
+                        instr.rs1 = removeBrackets(instr.rs1);
+
                     }
+                    else
+                    {
+                        cerr << "Invalid S-type instruction line: " << line << endl;
+                    }
+                    break;
+                    case 0x3: // Load Instructions
+                        // Parse the operands for Load instructions
+                        // Example: "lw x10, 10(x11)"
+                        char comma;
+                        int offset;
+                        if (iss >> instr.rd >> comma >> offset >> instr.rs1)
+                        {
+                            // Extract the immediate value from the offset
+                            instr.imm = offset;
+                            // Set the rs2 field to 0 for Load instructions
+                            instr.rs2 = "";
+                            // Remove commas from the operands
+                            instr.rd = removeCommas(instr.rd);
+                            instr.rs1 = removeCommas(instr.rs1);
+                            // Remove brackets from the operands
+                            instr.rs1 = removeBrackets(instr.rs1);
+                        }
+                        else
+                        {
+                            cerr << "Invalid Load instruction line: " << line << endl;
+                        }
+                        break;
+                    case 0x63: // Branch Instructions
+                        // Parse the operands for Branch instructions
+                        // Example: "beq x10, x11, label"
+                        if (iss >> instr.rs1 >> instr.rs2 >> instr.label)
+                        {
+                            // Set the rd field to 0 for Branch instructions
+                            instr.rd = "";
+                            // Remove commas from the operands
+                            instr.rs1 = removeCommas(instr.rs1);
+                            instr.rs2 = removeCommas(instr.rs2);
+                        }
+                        else
+                        {
+                            cerr << "Invalid Branch instruction line: " << line << endl;
+                        }
+                        break;
+                    
+                    case 0x67: //JALR instruction
+                        // Parse the operands for jalr instruction
+                        // Example: "jalr x10, x20, 0"
+                        if (iss >> instr.rd && iss.ignore() && iss >> instr.rs1 && iss.ignore() && iss >> instr.imm)
+                        {
+                            // Set the rs2 field to zero for jalr instruction
+                            instr.rs2 = "x0";
+                            // Remove commas from the operands
+                            instr.rd = removeCommas(instr.rd);
+                            instr.rs1 = removeCommas(instr.rs1);
+
+                        }
+                        else
+                        {
+                            cerr << "Invalid jalr instruction line: " << line << endl;
+                        }
+                        break;
+                    case 0x69: //JAL instruction
+                        // Parse the operands for jal instruction
+                        // Example: "jal x10, label"
+                        if (iss >> instr.rd >> instr.label)
+                        {
+                            // Remove commas from the operands
+                            instr.rd = removeCommas(instr.rd);
+                        }
+                        else
+                        {
+                            cerr << "Invalid jal instruction line: " << line << endl;
+                        }
+                        break; 
+                    case 0x17: // AUIPC instruction
+                        // Parse the operands for auipc instruction
+                        // Example: "auipc x10, 100"
+                        if (iss >> instr.rd >> instr.imm)
+                        {
+                            // Set the rs1 field to zero for auipc instruction
+                            instr.rs1 = "x0";
+                            // Remove commas from the operands
+                            instr.rd = removeCommas(instr.rd);
+                        }
+                        else
+                        {
+                            cerr << "Invalid auipc instruction line: " << line << endl;
+                        }
+                        break;
+                    case 0x37: // LUI instruction
+                        // Parse the operands for lui instruction
+                        // Example: "lui x10, 100"
+                        if (iss >> instr.rd >> instr.imm)
+                        {
+                            // Set the rs1 field to zero for lui instruction
+                            instr.rs1 = "x0";
+                            // Remove commas from the operands
+                            instr.rd = removeCommas(instr.rd);
+                        }
+                        else
+                        {
+                            cerr << "Invalid lui instruction line: " << line << endl;
+                        }
+                        break;
+                    default:
+                    cerr << "Wrong instruction, Unsupported opcode: " << opcode << endl;
+                    break;
+                    } 
                 }
                 else
                 {
@@ -625,6 +799,7 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
                 }
 
                 programCounter += 4; // Assuming each instruction takes 4 bytes in memory
+                instructions.push_back(instr);
             }
         }
 
@@ -811,6 +986,7 @@ FiveBitValue parseBinaryToFiveBit(const std::string &binaryString)
 
     return result;
 }
+
 void RISCV_Instructions::simulation()
 {
      std::cout << "Register" << "\t" << "Decimal" << "\t" << "Hexadecimal" << "\t" << "Binary" << std::endl;
