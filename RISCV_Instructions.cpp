@@ -10,6 +10,158 @@
 const int two_8 = 255;
 const int two_16 = 65535;
 using namespace std;
+void convert_to_xbase_register(std::string &reg)
+{
+    if (reg == "zero")
+    {
+        reg = "x0";
+    }
+    else if (reg == "ra")
+    {
+        reg = "x1";
+    }
+    else if (reg == "sp")
+    {
+        reg = "x2";
+    }
+    else if (reg == "gp")
+    {
+        reg = "x3";
+    }
+    else if (reg == "tp")
+    {
+        reg = "x4";
+    }
+    else if (reg == "t0")
+    {
+        reg = "x5";
+    }
+    else if (reg == "t1")
+    {
+        reg = "x6";
+    }
+    else if (reg == "t2")
+    {
+        reg = "x7";
+    }
+    else if (reg == "t3")
+    {
+        reg = "x28";
+    }
+    else if (reg == "t4")
+    {
+        reg = "x29";
+    }
+    else if (reg == "t5")
+    {
+        reg = "x30";
+    }
+    else if (reg == "t6")
+    {
+        reg = "x31";
+    }
+    else if (reg == "s0" || reg == "fp")
+    {
+        reg = "x8";
+    }
+    else if (reg == "s1")
+    {
+        reg = "x9";
+    }
+    else if (reg == "s2")
+    {
+        reg = "x18";
+    }
+    else if (reg == "s3")
+    {
+        reg = "x19";
+    }
+    else if (reg == "s4")
+    {
+        reg = "x20";
+    }
+    else if (reg == "s5")
+    {
+        reg = "x21";
+    }
+    else if (reg == "s6")
+    {
+        reg = "x22";
+    }
+    else if (reg == "s7")
+    {
+        reg = "x23";
+    }
+    else if (reg == "s8")
+    {
+        reg = "x24";
+    }
+    else if (reg == "s9")
+    {
+        reg = "x25";
+    }
+    else if (reg == "s10")
+    {
+        reg = "x26";
+    }
+    else if (reg == "s11")
+    {
+        reg = "x27";
+    }
+    else if (reg == "a0")
+    {
+        reg = "x10";
+    }
+    else if (reg == "a1")
+    {
+        reg == "x11";
+    }
+    else if (reg == "a2")
+    {
+        reg == "x12";
+    }
+    else if (reg == "a3")
+    {
+        reg = "x13";
+    }
+    else if (reg == "a4")
+    {
+        reg = "x14";
+    }
+    else if (reg == "a5")
+    {
+        reg = "x15";
+    }
+    else if (reg == "a6")
+    {
+        reg = "x16";
+    }
+    else if (reg == "a7")
+    {
+        reg = "x17";
+    }
+}
+
+string convert_to_binary(std::string &rs)
+{
+    std::string substring = rs.substr(1);
+    int num = std::stoi(substring);
+    std::bitset<5> binaryNum(num);
+
+    return binaryNum.to_string();
+}
+
+FiveBitValue parseBinaryToFiveBit(const std::string &binaryString)
+{
+
+    unsigned int parsedValue = std::bitset<5>(binaryString).to_ulong();
+
+    FiveBitValue result;
+    result.value = parsedValue;
+
+    return result;
+}
+
 string removeCommas(const string &input)
 {
     string result = input;
@@ -351,17 +503,17 @@ void RISCV_Instructions::SRA(string rd, string rs1, string rs2)
     programCounter += 4;
 }
 
-void RISCV_Instructions::SRL(string rd, string rs1, string rs2)
-{
-    if (rd != "X0")
-        registers[rd] = registers[rs1] << registers[rs2];
-    else
-    {
-        cout << "Can't change x0 - SRL" << endl;
-        exit(0);
-    }
-    programCounter += 4;
-}
+//void RISCV_Instructions::SRL(string rd, string rs1, string rs2)
+//{
+   // if (rd != "X0")
+      //  registers[rd] = registers[rs1] << registers[rs2];
+    //else
+    //{
+        //cout << "Can't change x0 - SRL" << endl;
+     //   exit(0);
+   // }
+  //  programCounter += 4;
+//}
 
 void RISCV_Instructions::OR(string rd, string rs1, string rs2)
 {
@@ -569,9 +721,9 @@ void RISCV_Instructions::AUIPC(string rd, int imm)
         exit(211);
     }
 }
-
-void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction> &instructions, map<string, int> &labelMap)
+void RISCV_Instructions::processOpcode(map<std::string, uint8_t> &opcodes)
 {
+    string filename = "Opcodes.txt";
     ifstream file(filename);
     if (!file.is_open())
     {
@@ -582,6 +734,37 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
     string line;
     while (getline(file, line))
     {
+        istringstream iss(line);
+        string instruction;
+        int opcode;
+        if (getline(iss, instruction, ',') && (iss >> opcode))
+        {
+            opcodes[instruction] = opcode;
+        }
+        else
+        {
+            cerr << "Invalid line: " << line << endl;
+        }
+    }
+
+    file.close();
+}
+
+void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction> &instructions, map<string, int> &labelMap)
+{   processOpcode(opcodes);
+    ifstream file(filename);
+    if (!file.is_open())
+    {
+        cerr << "Error opening file: " << filename << endl;
+        return;
+    }
+
+    string line;
+    while (getline(file, line))
+    {   if(line[0]=='#')
+        {
+            continue;
+        }
         // Trim leading and trailing whitespaces from the line
         line.erase(0, line.find_first_not_of(" \t\r\n"));
         line.erase(line.find_last_not_of(" \t\r\n") + 1);
@@ -751,8 +934,6 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
                     case 0x3: // Load Instructions
                         // Parse the operands for Load instructions
                         // Example: "lw x10, 10(x11)"
-                        char comma;
-                        int offset;
                         if (iss >> instr.rd >> comma >> offset >> instr.rs1)
                         {
                             // Extract the immediate value from the offset
@@ -901,187 +1082,6 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
         file.close();
     }
 }
-
-void RISCV_Instructions::processOpcode(map<std::string, uint8_t> &opcodes)
-{
-    string filename = "Opcodes.txt";
-    ifstream file(filename);
-    if (!file.is_open())
-    {
-        cerr << "Error opening file: " << filename << endl;
-        return;
-    }
-
-    string line;
-    while (getline(file, line))
-    {
-        istringstream iss(line);
-        string instruction;
-        int opcode;
-        if (getline(iss, instruction, ',') && (iss >> opcode))
-        {
-            opcodes[instruction] = opcode;
-        }
-        else
-        {
-            cerr << "Invalid line: " << line << endl;
-        }
-    }
-
-    file.close();
-}
-void convert_to_xbase_register(std::string &reg)
-{
-    if (reg == "zero")
-    {
-        reg = "x0";
-    }
-    else if (reg == "ra")
-    {
-        reg = "x1";
-    }
-    else if (reg == "sp")
-    {
-        reg = "x2";
-    }
-    else if (reg == "gp")
-    {
-        reg = "x3";
-    }
-    else if (reg == "tp")
-    {
-        reg = "x4";
-    }
-    else if (reg == "t0")
-    {
-        reg = "x5";
-    }
-    else if (reg == "t1")
-    {
-        reg = "x6";
-    }
-    else if (reg == "t2")
-    {
-        reg = "x7";
-    }
-    else if (reg == "t3")
-    {
-        reg = "x28";
-    }
-    else if (reg == "t4")
-    {
-        reg = "x29";
-    }
-    else if (reg == "t5")
-    {
-        reg = "x30";
-    }
-    else if (reg == "t6")
-    {
-        reg = "x31";
-    }
-    else if (reg == "s0" || reg == "fp")
-    {
-        reg = "x8";
-    }
-    else if (reg == "s1")
-    {
-        reg = "x9";
-    }
-    else if (reg == "s2")
-    {
-        reg = "x18";
-    }
-    else if (reg == "s3")
-    {
-        reg = "x19";
-    }
-    else if (reg == "s4")
-    {
-        reg = "x20";
-    }
-    else if (reg == "s5")
-    {
-        reg = "x21";
-    }
-    else if (reg == "s6")
-    {
-        reg = "x22";
-    }
-    else if (reg == "s7")
-    {
-        reg = "x23";
-    }
-    else if (reg == "s8")
-    {
-        reg = "x24";
-    }
-    else if (reg == "s9")
-    {
-        reg = "x25";
-    }
-    else if (reg == "s10")
-    {
-        reg = "x26";
-    }
-    else if (reg == "s11")
-    {
-        reg = "x27";
-    }
-    else if (reg == "a0")
-    {
-        reg = "x10";
-    }
-    else if (reg == "a1")
-    {
-        reg == "x11";
-    }
-    else if (reg == "a2")
-    {
-        reg == "x12";
-    }
-    else if (reg == "a3")
-    {
-        reg = "x13";
-    }
-    else if (reg == "a4")
-    {
-        reg = "x14";
-    }
-    else if (reg == "a5")
-    {
-        reg = "x15";
-    }
-    else if (reg == "a6")
-    {
-        reg = "x16";
-    }
-    else if (reg == "a7")
-    {
-        reg = "x17";
-    }
-}
-
-string convert_to_binary(std::string &rs)
-{
-    std::string substring = rs.substr(1);
-    int num = std::stoi(substring);
-    std::bitset<5> binaryNum(num);
-
-    return binaryNum.to_string();
-}
-
-FiveBitValue parseBinaryToFiveBit(const std::string &binaryString)
-{
-
-    unsigned int parsedValue = std::bitset<5>(binaryString).to_ulong();
-
-    FiveBitValue result;
-    result.value = parsedValue;
-
-    return result;
-}
-
 void RISCV_Instructions::simulation()
 {
     std::cout << "Register"
@@ -1097,4 +1097,24 @@ void RISCV_Instructions::simulation()
     {
         std::cout << "       " << it->first << "\t" << it->second << "\t" << std::hex << it->second << "\t" << std::bitset<32>(it->second) << std::dec << std::endl;
     }
+}
+void RISCV_Instructions::RunProrgam()
+{
+    // Parse the assembly code file
+    std::string filename = "basic_sample.txt";
+    parsingAssemblyCode(filename, instructions, labelMap);
+
+    // Display the parsed instructions
+    std::cout << "Parsed Instructions:" << std::endl;
+
+    // Perform simulation
+    simulation();
+}
+
+
+int main()
+{
+     RISCV_Instructions riscv;
+    riscv.RunProrgam();
+
 }

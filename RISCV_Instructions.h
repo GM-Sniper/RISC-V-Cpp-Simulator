@@ -67,12 +67,12 @@ public:
 	void JAL(string rd,string label);
 	void LUI(string rd,int imm);
 	void AUIPC(string rd,int imm);
-
+	void RunProrgam();
 private:
 	void holding();
 	map<std::string, int> registers;
 	map<std::string, uint8_t> opcodes;
-	map<string,uint32_t> labelMap;
+	map<string,int> labelMap;
 	ThreeBitValue funct3;
 	SevenBitValue funct7;
 	FiveBitValue rs1;
@@ -90,6 +90,7 @@ private:
 	void parsingAssemblyCode(string filename, vector<Instruction> &instructions, map<string,int> &labelMap);
     int programCounter;
     vector<Instruction> instructions;
+	
 	void simulation();
 	
 };
