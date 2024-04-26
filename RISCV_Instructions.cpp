@@ -212,9 +212,36 @@ void RISCV_Instructions::set_rd(std::string temp_rd)
     rd = parseBinaryToFiveBit(temp_rd);
 }
 
-constexpr uint64_t MAX_MEMORY_ADDRESS = 0xFFFFFFFFULL; // 4GB in bytes
-map<int, unsigned int> memory;
+constexpr uint64_t MAX_MEMORY_ADDRESS = 0xFFFFFFFF; // 4GB in bytes
+map<unsigned int, int> memory;
 
+void RISCV_Instructions::setDatainMemory(string filename)
+{
+    ifstream file(filename);
+    if (!file.is_open())
+    {
+        cerr << "Error opening file: " << filename << endl;
+        return;
+    }
+    // Read the file line by line
+    string line;
+    while (getline(file, line)) {
+        // Parse the line
+        istringstream iss(line);
+        unsigned int key;
+        int value;
+        if (iss >> key >> value) {
+            // Insert the values into the map
+            memory[key] = value;
+        } else {
+            cerr << "Error parsing line: " << line << endl;
+        }
+    }
+
+    // Close the file
+    file.close();
+    
+}
 void RISCV_Instructions::LB(std::string rd, std::string rs1, int imm)
 {
     if (rd == "x0")
@@ -1195,7 +1222,8 @@ void RISCV_Instructions::simulation()
     }
 }
 void RISCV_Instructions::RunProrgam()
-{
+{   // Set the data memory
+    setDatainMemory("TestCases/Data.txt");
     // Parse the assembly code file
     std::string filename = "TestCases/testCase1.asm";
     int pc;
