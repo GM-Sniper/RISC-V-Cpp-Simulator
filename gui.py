@@ -12,7 +12,7 @@ def parse_code():
 root = tk.Tk()
 root.title("C++ Parser GUI")
 
-label = tk.Label(root, text="Enter code:")
+label = tk.Label(root, text="Enter file:")
 label.pack()
 
 code_entry = tk.Entry(root, width=50)
