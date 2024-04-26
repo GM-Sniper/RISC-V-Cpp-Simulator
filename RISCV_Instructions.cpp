@@ -629,7 +629,7 @@ void RISCV_Instructions::BEQ(string rs1, string rs2, string label)
         cerr << "Trying to jump to a non existing label- BEQ " << endl;
         exit(200);
     }
-    cout << "hweriorfolwehrweoi      " << labelMap[label] << endl;
+    //cout << "hweriorfolwehrweoi      " << labelMap[label] << endl;
     if (registers[rs1] == registers[rs2])
         programCounter = labelMap[label] - 4;
     else
@@ -666,7 +666,7 @@ void RISCV_Instructions::BGEU(string rs1, string rs2, string label)
 {
     if (!labelMap.count(label))
     {
-        cerr << "Trying to jump to a non existing label- BGEU" << endl;
+        cerr << "Trying to jump to a non existing label - BGEU" << endl;
         exit(202);
     }
     if ((unsigned int)(registers[rs1]) >= (unsigned int)(registers[rs2]))
@@ -815,89 +815,100 @@ void RISCV_Instructions::findLabels(string filename, map<string, int> &labelMap)
     file.close();
 }
 void RISCV_Instructions::execute(vector<Instruction> &instruction)
-{
-    for (auto &instr : instruction)
+{  
+    int programCounterNew=instruction[instruction.size()-1].pc;
+    cout<<"Program Counter New: "<<programCounterNew<<endl;
+    cout<< "Program Counter: " << programCounter << endl;
+    while (programCounter <= programCounterNew) // Max program counter
     {
-        if (instr.name == "add")
-            ADD(instr.rd, instr.rs1, instr.rs2);
-        else if (instr.name == "sub")
-            SUB(instr.rd, instr.rs1, instr.rs2);
-        else if (instr.name == "sll")
-            SLL(instr.rd, instr.rs1, instr.rs2);
-        else if (instr.name == "slt")
-            SLT(instr.rd, instr.rs1, instr.rs2);
-        else if (instr.name == "sltu")
-            SLTU(instr.rd, instr.rs1, instr.rs2);
-        else if (instr.name == "xor")
-            XOR(instr.rd, instr.rs1, instr.rs2);
-        else if (instr.name == "srl")
-            SRL(instr.rd, instr.rs1, instr.rs2);
-        else if (instr.name == "sra")
-            SRA(instr.rd, instr.rs1, instr.rs2);
-        else if (instr.name == "or")
-            OR(instr.rd, instr.rs1, instr.rs2);
-        else if (instr.name == "and")
-            AND(instr.rd, instr.rs1, instr.rs2);
-        if (instr.name == "addi")
-            ADDI(instr.rd, instr.rs1, instr.imm);
-        else if (instr.name == "slti")
-            SLTI(instr.rd, instr.rs1, instr.imm);
-        else if (instr.name == "sltiu")
-            SLTIU(instr.rd, instr.rs1, instr.imm);
-        else if (instr.name == "xori")
-            XORI(instr.rd, instr.rs1, instr.imm);
-        else if (instr.name == "ori")
-            ORI(instr.rd, instr.rs1, instr.imm);
-        else if (instr.name == "andi")
-            ANDI(instr.rd, instr.rs1, instr.imm);
-        else if (instr.name == "slli")
-            SLLI(instr.rd, instr.rs1, instr.imm);
-        else if (instr.name == "srli")
-            SRLI(instr.rd, instr.rs1, instr.imm);
-        else if (instr.name == "srai")
-            SRAI(instr.rd, instr.rs1, instr.imm);
-        else if (instr.name == "sw")
-            SW(instr.rs1, instr.rs2, instr.imm);
-        else if (instr.name == "sb")
-            SB(instr.rs1, instr.rs2, instr.imm);
-        else if (instr.name == "sh")
-            SH(instr.rs1, instr.rs2, instr.imm);
-        else if (instr.name == "lw")
-            LW(instr.rd, instr.rs1, instr.imm);
-        else if (instr.name == "lb")
-            LB(instr.rd, instr.rs1, instr.imm);
-        else if (instr.name == "lbu")
-            LBU(instr.rd, instr.rs1, instr.imm);
-        else if (instr.name == "lh")
-            LH(instr.rd, instr.rs1, instr.imm);
-        else if (instr.name == "lhu")
-            LHU(instr.rd, instr.rs1, instr.imm);
-        else if (instr.name == "beq")
-            BEQ(instr.rs1, instr.rs2, instr.label);
-        else if (instr.name == "bne")
-            BNE(instr.rs1, instr.rs2, instr.label);
-        else if (instr.name == "bge")
-            BGE(instr.rs1, instr.rs2, instr.label);
-        else if (instr.name == "bltu")
-            BLTU(instr.rs1, instr.rs2, instr.label);
-        else if (instr.name == "bgeu")
-            BGEU(instr.rs1, instr.rs2, instr.label);
-        else if (instr.name == "jalr")
-            JALR(instr.rd, instr.rs1, instr.imm);
-        else if (instr.name == "jal")
-            JAL(instr.rd, instr.label);
-        else if (instr.name == "auipc")
-            AUIPC(instr.rd, instr.imm);
-        else if (instr.name == "jalr")
-            JALR(instr.rd, instr.rs1, instr.imm);
-        else if (instr.name == "lui")
-            LUI(instr.rd, instr.imm);
+        for (auto &instr : instruction)
+        {
+            if (programCounter == instr.pc)
+            {
+                if (instr.name == "add")
+                    ADD(instr.rd, instr.rs1, instr.rs2);
+                else if (instr.name == "sub")
+                    SUB(instr.rd, instr.rs1, instr.rs2);
+                else if (instr.name == "sll")
+                    SLL(instr.rd, instr.rs1, instr.rs2);
+                else if (instr.name == "slt")
+                    SLT(instr.rd, instr.rs1, instr.rs2);
+                else if (instr.name == "sltu")
+                    SLTU(instr.rd, instr.rs1, instr.rs2);
+                else if (instr.name == "xor")
+                    XOR(instr.rd, instr.rs1, instr.rs2);
+                else if (instr.name == "srl")
+                    SRL(instr.rd, instr.rs1, instr.rs2);
+                else if (instr.name == "sra")
+                    SRA(instr.rd, instr.rs1, instr.rs2);
+                else if (instr.name == "or")
+                    OR(instr.rd, instr.rs1, instr.rs2);
+                else if (instr.name == "and")
+                    AND(instr.rd, instr.rs1, instr.rs2);
+                else if (instr.name == "addi")
+                    ADDI(instr.rd, instr.rs1, instr.imm);
+                else if (instr.name == "slti")
+                    SLTI(instr.rd, instr.rs1, instr.imm);
+                else if (instr.name == "sltiu")
+                    SLTIU(instr.rd, instr.rs1, instr.imm);
+                else if (instr.name == "xori")
+                    XORI(instr.rd, instr.rs1, instr.imm);
+                else if (instr.name == "ori")
+                    ORI(instr.rd, instr.rs1, instr.imm);
+                else if (instr.name == "andi")
+                    ANDI(instr.rd, instr.rs1, instr.imm);
+                else if (instr.name == "slli")
+                    SLLI(instr.rd, instr.rs1, instr.imm);
+                else if (instr.name == "srli")
+                    SRLI(instr.rd, instr.rs1, instr.imm);
+                else if (instr.name == "srai")
+                    SRAI(instr.rd, instr.rs1, instr.imm);
+                else if (instr.name == "sw")
+                    SW(instr.rs1, instr.rs2, instr.imm);
+                else if (instr.name == "sb")
+                    SB(instr.rs1, instr.rs2, instr.imm);
+                else if (instr.name == "sh")
+                    SH(instr.rs1, instr.rs2, instr.imm);
+                else if (instr.name == "lw")
+                    LW(instr.rd, instr.rs1, instr.imm);
+                else if (instr.name == "lb")
+                    LB(instr.rd, instr.rs1, instr.imm);
+                else if (instr.name == "lbu")
+                    LBU(instr.rd, instr.rs1, instr.imm);
+                else if (instr.name == "lh")
+                    LH(instr.rd, instr.rs1, instr.imm);
+                else if (instr.name == "lhu")
+                    LHU(instr.rd, instr.rs1, instr.imm);
+                else if (instr.name == "beq")
+                    BEQ(instr.rs1, instr.rs2, instr.label);
+                else if (instr.name == "bne")
+                    BNE(instr.rs1, instr.rs2, instr.label);
+                else if (instr.name == "bge")
+                    BGE(instr.rs1, instr.rs2, instr.label);
+                else if (instr.name == "bltu")
+                    BLTU(instr.rs1, instr.rs2, instr.label);
+                else if (instr.name == "bgeu")
+                    BGEU(instr.rs1, instr.rs2, instr.label);
+                else if (instr.name == "jalr")
+                    JALR(instr.rd, instr.rs1, instr.imm);
+                else if (instr.name == "jal")
+                    JAL(instr.rd, instr.label);
+                else if (instr.name == "auipc")
+                    AUIPC(instr.rd, instr.imm);
+                else if (instr.name == "jalr")
+                    JALR(instr.rd, instr.rs1, instr.imm);
+                else if (instr.name == "lui")
+                    LUI(instr.rd, instr.imm);
+            }
+            //cout << "Program Counter: " << programCounter << endl;
+        }
     }
 }
 void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction> &instructions, map<string, int> &labelMap)
 {
     processOpcode(opcodes);
     findLabels(filename, labelMap);
+    int programCounterInitial=programCounter;
     ifstream file(filename);
     if (!file.is_open())
     {
@@ -922,7 +933,7 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
 
             Instruction instr;
             // No label, just store the instruction and update memory address
-            cout << "Instruction: " << line << ", Address: " << programCounter << endl;
+            cout << "Instruction: " << line << endl;
             istringstream iss(line);
             string instructionName;
             if (iss >> instructionName)
@@ -958,6 +969,7 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
                             convert_to_xbase_register(instr.rd);
                             convert_to_xbase_register(instr.rs1);
                             convert_to_xbase_register(instr.rs2);
+                            instr.pc = programCounter;
 
                             // if (instructionName == "add")
                             //     ADD(instr.rd, instr.rs1, instr.rs2);
@@ -999,6 +1011,7 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
 
                             convert_to_xbase_register(instr.rd);
                             convert_to_xbase_register(instr.rs1);
+                            instr.pc = programCounter;
                             // if (instructionName == "addi")
                             //     ADDI(instr.rd, instr.rs1, instr.imm);
                             // else if (instructionName == "slti")
@@ -1040,6 +1053,7 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
                             // Remove brackets from the operands
                             instr.rs2 = removeBrackets(instr.rs2);
                             instr.rs1 = removeBrackets(instr.rs1);
+                            instr.pc = programCounter;
 
                             // if (instructionName == "sw")
                             //     SW(instr.rs1, instr.rs2, instr.imm);
@@ -1070,6 +1084,7 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
 
                             convert_to_xbase_register(instr.rd);
                             convert_to_xbase_register(instr.rs1);
+                            instr.pc = programCounter;
 
                             // if (instructionName == "lw")
                             //     LW(instr.rd, instr.rs1, instr.imm);
@@ -1100,6 +1115,7 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
 
                             convert_to_xbase_register(instr.rs2);
                             convert_to_xbase_register(instr.rs1);
+                            instr.pc = programCounter;
 
                             // if (instructionName == "beq")
                             //     BEQ(instr.rs1, instr.rs2, instr.label);
@@ -1129,6 +1145,7 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
 
                             convert_to_xbase_register(instr.rd);
                             convert_to_xbase_register(instr.rs1);
+                            instr.pc = programCounter;
                         }
                         else
                         {
@@ -1143,6 +1160,7 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
                             // Remove commas from the operands
                             instr.rd = removeCommas(instr.rd);
                             convert_to_xbase_register(instr.rd);
+                            instr.pc = programCounter;
                         }
                         else
                         {
@@ -1158,6 +1176,7 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
                             instr.rd = removeCommas(instr.rd);
 
                             convert_to_xbase_register(instr.rd);
+                            instr.pc = programCounter;
                         }
                         else
                         {
@@ -1173,6 +1192,7 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
                             instr.rd = removeCommas(instr.rd);
 
                             convert_to_xbase_register(instr.rd);
+                            instr.pc = programCounter;
                         }
                         else
                         {
@@ -1190,10 +1210,11 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
                 cerr << "Invalid instruction line: " << line << endl;
             }
 
-            // programCounter += 4; // Assuming each instruction takes 4 bytes in memory
+            programCounter += 4; // Assuming each instruction takes 4 bytes in memory
             instructions.push_back(instr);
         }
     }
+    programCounter=programCounterInitial;
     file.close();
     execute(instructions);
 }

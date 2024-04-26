@@ -87,6 +87,7 @@ private:
     	int imm;
     	string rd;
 		string label;
+		int pc;
 	};
 	void execute(vector<Instruction> &instr);
 	void findLabels(string filename, map<string,int> &labelMap);
