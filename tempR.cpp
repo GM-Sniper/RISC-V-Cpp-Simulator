@@ -276,7 +276,7 @@ Instruction parseInstruction(const string &instructionLine)
 int main()
 {
     // Test with an example beq instruction
-    string instructionLine = "add x10, x0, x11";
+    string instructionLine = "jalr x10, 0()";
     Instruction instr = parseInstruction(instructionLine);
     // Print the parsed instruction
     cout << "Instruction Name: " << instructionLine << endl;

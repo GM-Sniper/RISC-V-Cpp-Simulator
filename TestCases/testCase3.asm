@@ -1,13 +1,42 @@
-addi a0, zero, 70
-addi a1, zero, 28
-jal ra, gcd
-addi x30, x0, 1
-gcd: 
-beq a0, a1, exit
-blt a1, a0, L1
-sub a1, a1, a0
-beq t0, t0, gcd
-L1: sub a0, a0, a1
-beq t0, t0, gcd
-exit: 
-jalr zero, 0(ra)
+Insertion_Sort:
+addi sp, sp, -8
+sw s0, 0(sp)
+sw s1, 4(sp)
+addi s0, x0, 0 
+outer_loop: 
+bge s0, a1, outer_exit
+add t0, x0, s0
+slli t0, t0, 2
+add t0, a0, t0 
+lw t1, 0(t0)   
+addi s1, s0, -1    
+inner_loop:
+blt s1, zero, inner_exit
+add t0, x0, s1
+slli t0, t0, 2
+add t0, a0, t0
+lw t2, 0(t0)   
+blt t2, t1, inner_exit
+beq t2, t1, inner_exit
+sw t2, 4(t0)
+addi s1, s1, -1
+beq x0, x0, inner_loop
+inner_exit:
+addi s1, s1, 1
+add t0, x0, s1
+slli t0, t0, 2
+add t0, a0, t0
+lw t2, 0(t0)
+sw t1, 0(t0)
+addi s0, s0, 1
+beq x0, x0, outer_loop
+outer_exit:
+lw s0, 0(sp)
+lw s1, 4(sp)
+addi sp, sp, 8
+jalr x0, 0(ra)
+main: 
+addi a0, zero, 0  
+addi a1, x0, 5
+jal ra, Insertion_Sort
+exit:

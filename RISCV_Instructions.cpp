@@ -227,7 +227,7 @@ void RISCV_Instructions::LB(std::string rd, std::string rs1, int imm)
     // Check if the address is already in memory, if not, initialize it
     if (memory.find(address) == memory.end())
     {
-        std::cerr << "Error: Memory access out of bounds" << std::endl;
+        std::cerr << "Error: Memory access out of bounds - LB" << std::endl;
         exit(100);
     }
 
@@ -244,7 +244,7 @@ void RISCV_Instructions::LH(std::string rd, std::string rs1, int imm)
 
     if (memory.find(address) == memory.end())
     {
-        std::cerr << "Error: Memory access out of bounds" << std::endl;
+        std::cerr << "Error: Memory access out of bounds - LH" << std::endl;
         exit(101);
     }
 
@@ -261,7 +261,7 @@ void RISCV_Instructions::LW(std::string rd, std::string rs1, int imm)
     // Check if the address is within the valid memory range
     if (memory.find(address) == memory.end())
     {
-        std::cerr << "Error: Memory access out of bounds" << std::endl;
+        std::cerr << "Error: Memory access out of bounds -LW " << std::endl;
         exit(102);
     }
     registers[rd] = memory[address];
@@ -277,7 +277,7 @@ void RISCV_Instructions::LBU(std::string rd, std::string rs1, int imm)
 
     if (memory.find(address) == memory.end())
     {
-        std::cerr << "Error: Memory access out of bounds" << std::endl;
+        std::cerr << "Error: Memory access out of bounds - LBU" << std::endl;
         exit(103);
     }
 
@@ -295,7 +295,7 @@ void RISCV_Instructions::LHU(std::string rd, std::string rs1, int imm)
 
     if (memory.find(address) == memory.end())
     {
-        std::cerr << "Error: Memory access out of bounds" << std::endl;
+        std::cerr << "Error: Memory access out of bounds - LHU" << std::endl;
         exit(104);
     }
 
@@ -310,7 +310,7 @@ void RISCV_Instructions::SB(std::string rs1, std::string rs2, int imm)
 
     if (memory.find(final_address) == memory.end())
     {
-        std::cerr << "Error: Memory access out of bounds" << std::endl;
+        std::cerr << "Error: Memory access out of bounds - SB" << std::endl;
         exit(105);
     }
 
@@ -332,7 +332,7 @@ void RISCV_Instructions::SH(std::string rs1, std::string rs2, int imm)
 
     if (memory.find(final_address) == memory.end())
     {
-        std::cerr << "Error: Memory access out of bounds" << std::endl;
+        std::cerr << "Error: Memory access out of bounds - SH" << std::endl;
         exit(106);
     }
 
@@ -353,10 +353,10 @@ void RISCV_Instructions::SW(std::string rs1, std::string rs2, int imm)
 
     if (memory.find(final_address) == memory.end())
     {
-        std::cerr << "Error: Memory access out of bounds" << std::endl;
+        std::cerr << "Error: Memory access out of bounds - SW" << std::endl;
+        cout<< rs1 <<rs2<<endl;
         exit(107);
     }
-
     memory[final_address] = registers[rs1];
     programCounter += 4;
 };
@@ -457,8 +457,8 @@ void RISCV_Instructions::SLT(string rd, string rs1, string rs2)
     {
         if (registers[rs1] < registers[rs2])
             registers[rd] = 1;
-        else 
-            registers[rd]=0;
+        else
+            registers[rd] = 0;
     }
     else
     {
@@ -475,7 +475,7 @@ void RISCV_Instructions::SLTU(string rd, string rs1, string rs2)
         if ((unsigned int)registers[rs1] < (unsigned int)registers[rs2])
             registers[rd] = 1;
         else
-            registers[rd]=0;
+            registers[rd] = 0;
     }
     else
     {
@@ -540,8 +540,8 @@ void RISCV_Instructions::SLTI(string rd, string rs1, int imm)
     {
         if (registers[rs1] < imm)
             registers[rd] = 1;
-        else 
-            registers[rd]=0;
+        else
+            registers[rd] = 0;
     }
     else
     {
@@ -556,8 +556,8 @@ void RISCV_Instructions::SLTIU(string rd, string rs1, int imm)
     {
         if ((unsigned int)registers[rs1] < imm)
             registers[rd] = 1;
-        else    
-            registers[rd]=0;
+        else
+            registers[rd] = 0;
     }
     else
     {
@@ -700,6 +700,8 @@ void RISCV_Instructions::JALR(string rd, string rs1, int imm) // Still need to c
 {
     registers[rd] = programCounter + 4;
     programCounter = registers[rs1] + imm;
+
+    cout << "kdsflksjdfksjdlfksjdlkfjs      " << programCounter << endl;
 }
 
 void RISCV_Instructions::JAL(string rd, string label)
@@ -709,10 +711,11 @@ void RISCV_Instructions::JAL(string rd, string label)
         cerr << "Trying to jump to a non existing label- jal" << endl;
         exit(205);
     }
-    if (rd != "X0")
+    if (rd != "x0")
     {
         registers[rd] = programCounter + 4;
         programCounter = labelMap[label];
+        cout << ",sdnfmsjdkfjsdklfjlskdjflksjdflksjdkfljsdklfjsd    " << programCounter << endl;
     }
     else
     {
@@ -827,9 +830,9 @@ void RISCV_Instructions::execute(vector<Instruction> &instruction)
     int programCounterNew = instruction[instruction.size() - 1].pc;
     cout << "Program Counter New: " << programCounterNew << endl;
     cout << "Program Counter: " << programCounter << endl;
-    while (programCounter <= programCounterNew) // Max program counter
+    while ((programCounter <= programCounterNew) && programCounter > 0) // Max program counter
     {
-        // cout<<"kjsdfhksdhfkjs   "<<programCounter<<endl;  
+        // cout << "kjsdfhksdhfkjs   " << programCounter << endl;
         for (auto &instr : instruction)
         {
             if (programCounter == instr.pc)
@@ -956,7 +959,7 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
                     // Converting the instruction name into lowercase to avoid any error while reading from file
                     transform(instructionName.begin(), instructionName.end(), instructionName.begin(), [](unsigned char c)
                               { return tolower(c); });
-                    cout << "Instruction Name: " << instructionName <<programCounter<< endl;
+                    cout << "Instruction Name: " << instructionName << programCounter << endl;
                     instr.name = instructionName;
                     int opcode = opcodes[instructionName];
                     switch (opcode)
@@ -979,27 +982,6 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
                             convert_to_xbase_register(instr.rs1);
                             convert_to_xbase_register(instr.rs2);
                             instr.pc = programCounter;
-
-                            // if (instructionName == "add")
-                            //     ADD(instr.rd, instr.rs1, instr.rs2);
-                            // else if (instructionName == "sub")
-                            //     SUB(instr.rd, instr.rs1, instr.rs2);
-                            // else if (instructionName == "sll")
-                            //     SLL(instr.rd, instr.rs1, instr.rs2);
-                            // else if (instructionName == "slt")
-                            //     SLT(instr.rd, instr.rs1, instr.rs2);
-                            // else if (instructionName == "sltu")
-                            //     SLTU(instr.rd, instr.rs1, instr.rs2);
-                            // else if (instructionName == "xor")
-                            //     XOR(instr.rd, instr.rs1, instr.rs2);
-                            // else if (instructionName == "srl")
-                            //     SRL(instr.rd, instr.rs1, instr.rs2);
-                            // else if (instructionName == "sra")
-                            //     SRA(instr.rd, instr.rs1, instr.rs2);
-                            // else if (instructionName == "or")
-                            //     OR(instr.rd, instr.rs1, instr.rs2);
-                            // else if (instructionName == "and")
-                            //     AND(instr.rd, instr.rs1, instr.rs2);
                         }
                         else
                         {
@@ -1021,24 +1003,6 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
                             convert_to_xbase_register(instr.rd);
                             convert_to_xbase_register(instr.rs1);
                             instr.pc = programCounter;
-                            // if (instructionName == "addi")
-                            //     ADDI(instr.rd, instr.rs1, instr.imm);
-                            // else if (instructionName == "slti")
-                            //     SLTI(instr.rd, instr.rs1, instr.imm);
-                            // else if (instructionName == "sltiu")
-                            //     SLTIU(instr.rd, instr.rs1, instr.imm);
-                            // else if (instructionName == "xori")
-                            //     XORI(instr.rd, instr.rs1, instr.imm);
-                            // else if (instructionName == "ori")
-                            //     ORI(instr.rd, instr.rs1, instr.imm);
-                            // else if (instructionName == "andi")
-                            //     ANDI(instr.rd, instr.rs1, instr.imm);
-                            // else if (instructionName == "slli")
-                            //     SLLI(instr.rd, instr.rs1, instr.imm);
-                            // else if (instructionName == "srli")
-                            //     SRLI(instr.rd, instr.rs1, instr.imm);
-                            // else if (instructionName == "srai")
-                            //     SRAI(instr.rd, instr.rs1, instr.imm);
                         }
                         else
                         {
@@ -1063,54 +1027,38 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
                             instr.rs2 = removeBrackets(instr.rs2);
                             instr.rs1 = removeBrackets(instr.rs1);
                             instr.pc = programCounter;
-
-                            // if (instructionName == "sw")
-                            //     SW(instr.rs1, instr.rs2, instr.imm);
-                            // else if (instructionName == "sb")
-                            //     SB(instr.rs1, instr.rs2, instr.imm);
-                            // else if (instructionName == "sh")
-                            //     SH(instr.rs1, instr.rs2, instr.imm);
                         }
                         else
                         {
                             cerr << "Invalid S-type instruction line: " << line << endl;
                         }
                         break;
-                    case 0x3: // Load Instructions
-                        // Parse the operands for Load instructions
-                        // Example: "lw x10, 10(x11)"
-                        if (iss >> instr.rd >> comma >> offset >> instr.rs1)
-                        {
-                            // Extract the immediate value from the offset
-                            instr.imm = offset;
-                            // Set the rs2 field to 0 for Load instructions
-                            instr.rs2 = "";
-                            // Remove commas from the operands
-                            instr.rd = removeCommas(instr.rd);
-                            instr.rs1 = removeCommas(instr.rs1);
-                            // Remove brackets from the operands
-                            instr.rs1 = removeBrackets(instr.rs1);
+case 0x3: // Load Instructions
+                      // Parse the operands for Load instructions
+                      // Example: "lw x10, 10(x11)"
+                if (iss >> instr.rd >> offset >> comma >> instr.rs1)
+                {
+                    // Extract the immediate value from the offset
+                    instr.imm = offset;
+                    // Set the rd field to 0 for S-type instructions
+                    instr.rs2 = "";
+                    // Remove commas from the operands
+                    instr.rd = removeCommas(instr.rd);
+                    instr.rs1 = removeCommas(instr.rs1);
+                    // Remove brackets from the operands
+                    instr.rd = removeBrackets(instr.rd);
+                    instr.rs1 = removeBrackets(instr.rs1);
 
-                            convert_to_xbase_register(instr.rd);
-                            convert_to_xbase_register(instr.rs1);
-                            instr.pc = programCounter;
+                    convert_to_xbase_register(instr.rs1);
+                    convert_to_xbase_register(instr.rd);
+                    instr.pc=programCounter;
 
-                            // if (instructionName == "lw")
-                            //     LW(instr.rd, instr.rs1, instr.imm);
-                            // else if (instructionName == "lb")
-                            //     LB(instr.rd, instr.rs1, instr.imm);
-                            // else if (instructionName == "lbu")
-                            //     LBU(instr.rd, instr.rs1, instr.imm);
-                            // else if (instructionName == "lh")
-                            //     LH(instr.rd, instr.rs1, instr.imm);
-                            // else if (instructionName == "lhu")
-                            //     LHU(instr.rd, instr.rs1, instr.imm);
-                        }
-                        else
-                        {
-                            cerr << "Invalid Load instruction line: " << line << endl;
-                        }
-                        break;
+                }
+                else
+                {
+                    cerr << "Invalid Load instruction line: " << line << endl;
+                }
+                break;
                     case 0x63: // Branch Instructions
                         // Parse the operands for Branch instructions
                         // Example: "beq x10, x11, label"
@@ -1125,32 +1073,27 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
                             convert_to_xbase_register(instr.rs2);
                             convert_to_xbase_register(instr.rs1);
                             instr.pc = programCounter;
-
-                            // if (instructionName == "beq")
-                            //     BEQ(instr.rs1, instr.rs2, instr.label);
-                            // else if (instructionName == "bne")
-                            //     BNE(instr.rs1, instr.rs2, instr.label);
-                            // else if (instructionName == "bge")
-                            //     BGE(instr.rs1, instr.rs2, instr.label);
-                            // else if (instructionName == "bltu")
-                            //     BLTU(instr.rs1, instr.rs2, instr.label);
-                            // else if (instructionName == "bgeu")
-                            //     BGEU(instr.rs1, instr.rs2, instr.label);
                         }
                         else
                         {
                             cerr << "Invalid Branch instruction line: " << line << endl;
                         }
                         break;
-
                     case 0x67: // JALR instruction
                         // Parse the operands for jalr instruction
-                        // Example: "jalr x10, x20, 0"
-                        if (iss >> instr.rd && iss.ignore() && iss >> instr.rs1 && iss.ignore() && iss >> instr.imm)
+                        // Example: "jalr rd, offset(rs1)"
+                        if (iss >> instr.rd >> offset >> comma >> instr.rs1)
                         {
+                            // Extract the immediate value from the offset
+                            instr.imm = offset;
+                            // Set the rd field to 0 for S-type instructions
+                            instr.rs2 = "";
                             // Remove commas from the operands
                             instr.rd = removeCommas(instr.rd);
                             instr.rs1 = removeCommas(instr.rs1);
+                            // Remove brackets from the operands
+                            instr.rd = removeBrackets(instr.rd);
+                            instr.rs1 = removeBrackets(instr.rs1);
 
                             convert_to_xbase_register(instr.rd);
                             convert_to_xbase_register(instr.rs1);
@@ -1161,7 +1104,7 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
                             cerr << "Invalid jalr instruction line: " << line << endl;
                         }
                         break;
-                    case 0x69: // JAL instruction
+                    case 0x6F: // JAL instruction
                         // Parse the operands for jal instruction
                         // Example: "jal x10, label"
                         if (iss >> instr.rd >> instr.label)
@@ -1240,7 +1183,7 @@ void RISCV_Instructions::simulation()
 
     for (auto it = registers.begin(); it != registers.end(); ++it)
     {
-        std::cout << "       " << it->first << "\t" << it->second << "\t" << std::hex << it->second << "\t" << std::bitset<32>(it->second) << std::dec << std::endl;
+        std::cout << it->first << "\t   | \t" << it->second << "\t|" << std::hex << it->second << "\t\t| " << std::bitset<32>(it->second) << std::dec << std::endl;
     }
 }
 void RISCV_Instructions::RunProrgam()
