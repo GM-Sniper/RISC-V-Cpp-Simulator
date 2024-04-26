@@ -457,6 +457,8 @@ void RISCV_Instructions::SLT(string rd, string rs1, string rs2)
     {
         if (registers[rs1] < registers[rs2])
             registers[rd] = 1;
+        else 
+            registers[rd]=0;
     }
     else
     {
@@ -472,6 +474,8 @@ void RISCV_Instructions::SLTU(string rd, string rs1, string rs2)
     {
         if ((unsigned int)registers[rs1] < (unsigned int)registers[rs2])
             registers[rd] = 1;
+        else
+            registers[rd]=0;
     }
     else
     {
@@ -536,6 +540,8 @@ void RISCV_Instructions::SLTI(string rd, string rs1, int imm)
     {
         if (registers[rs1] < imm)
             registers[rd] = 1;
+        else 
+            registers[rd]=0;
     }
     else
     {
@@ -550,6 +556,8 @@ void RISCV_Instructions::SLTIU(string rd, string rs1, int imm)
     {
         if ((unsigned int)registers[rs1] < imm)
             registers[rd] = 1;
+        else    
+            registers[rd]=0;
     }
     else
     {
@@ -629,7 +637,7 @@ void RISCV_Instructions::BEQ(string rs1, string rs2, string label)
         cerr << "Trying to jump to a non existing label- BEQ " << endl;
         exit(200);
     }
-    //cout << "hweriorfolwehrweoi      " << labelMap[label] << endl;
+    // cout << "hweriorfolwehrweoi      " << labelMap[label] << endl;
     if (registers[rs1] == registers[rs2])
         programCounter = labelMap[label] - 4;
     else
@@ -815,12 +823,13 @@ void RISCV_Instructions::findLabels(string filename, map<string, int> &labelMap)
     file.close();
 }
 void RISCV_Instructions::execute(vector<Instruction> &instruction)
-{  
-    int programCounterNew=instruction[instruction.size()-1].pc;
-    cout<<"Program Counter New: "<<programCounterNew<<endl;
-    cout<< "Program Counter: " << programCounter << endl;
+{
+    int programCounterNew = instruction[instruction.size() - 1].pc;
+    cout << "Program Counter New: " << programCounterNew << endl;
+    cout << "Program Counter: " << programCounter << endl;
     while (programCounter <= programCounterNew) // Max program counter
     {
+        // cout<<"kjsdfhksdhfkjs   "<<programCounter<<endl;  
         for (auto &instr : instruction)
         {
             if (programCounter == instr.pc)
@@ -900,7 +909,7 @@ void RISCV_Instructions::execute(vector<Instruction> &instruction)
                 else if (instr.name == "lui")
                     LUI(instr.rd, instr.imm);
             }
-            //cout << "Program Counter: " << programCounter << endl;
+            // cout << "Program Counter: " << programCounter << endl;
         }
     }
 }
@@ -908,7 +917,7 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
 {
     processOpcode(opcodes);
     findLabels(filename, labelMap);
-    int programCounterInitial=programCounter;
+    int programCounterInitial = programCounter;
     ifstream file(filename);
     if (!file.is_open())
     {
@@ -947,7 +956,7 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
                     // Converting the instruction name into lowercase to avoid any error while reading from file
                     transform(instructionName.begin(), instructionName.end(), instructionName.begin(), [](unsigned char c)
                               { return tolower(c); });
-                    cout << "Instruction Name: " << instructionName << endl;
+                    cout << "Instruction Name: " << instructionName <<programCounter<< endl;
                     instr.name = instructionName;
                     int opcode = opcodes[instructionName];
                     switch (opcode)
@@ -1214,7 +1223,7 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
             instructions.push_back(instr);
         }
     }
-    programCounter=programCounterInitial;
+    programCounter = programCounterInitial;
     file.close();
     execute(instructions);
 }
@@ -1237,7 +1246,7 @@ void RISCV_Instructions::simulation()
 void RISCV_Instructions::RunProrgam()
 {
     // Parse the assembly code file
-    std::string filename = "TestCases/testCase2.asm";
+    std::string filename = "TestCases/testCase3.asm";
     int pc;
     cout << "Enter the value of PC" << endl;
     cin >> pc;

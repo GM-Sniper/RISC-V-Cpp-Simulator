@@ -8,4 +8,3 @@ add x10, x10, x11
 addi x12, x12, 1
 beq x0, x0, LOOP
 END:
-addi x20, zero, 900

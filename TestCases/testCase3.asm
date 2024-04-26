@@ -1,7 +1,13 @@
-main:
-    addi t0, x0, 20
-    addi t1, x0, 10
-    addi t2, x0, 80
-    addi t3,t3,2
-    slt t4, t0, t1
-    srl t5, t2, t3
+addi a0, zero, 70
+addi a1, zero, 28
+jal ra, gcd
+addi x30, x0, 1
+gcd: 
+beq a0, a1, exit
+blt a1, a0, L1
+sub a1, a1, a0
+beq t0, t0, gcd
+L1: sub a0, a0, a1
+beq t0, t0, gcd
+exit: 
+jalr zero, 0(ra)
