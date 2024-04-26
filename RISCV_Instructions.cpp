@@ -698,10 +698,12 @@ void RISCV_Instructions::BLTU(string rs1, string rs2, string label)
 
 void RISCV_Instructions::JALR(string rd, string rs1, int imm) // Still need to check the restrictions on changing X0
 {
-    registers[rd] = programCounter+4;//We removed four from here 
+    registers[rd] = programCounter + 4; // We removed four from here
     programCounter = registers[rs1] + imm;
 
     cout << "kdsflksjdfksjdlfksjdlkfjs      " << programCounter << endl;
+    if (rd == "x0")
+        registers[rd] = 0;
 }
 
 void RISCV_Instructions::JAL(string rd, string label)
@@ -919,8 +921,8 @@ void RISCV_Instructions::execute(vector<Instruction> &instruction)
             }
             // cout << "Program Counter: " << programCounter << endl;
         }
-        if (x != 1)
-            break;
+        // if (x != 1)
+        //     break;
     }
 }
 void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction> &instructions, map<string, int> &labelMap)
