@@ -354,7 +354,7 @@ void RISCV_Instructions::SW(std::string rs1, std::string rs2, int imm)
     if (memory.find(final_address) == memory.end())
     {
         std::cerr << "Error: Memory access out of bounds - SW" << std::endl;
-        cout<< rs1 <<rs2<<endl;
+        cout << rs1 << rs2 << endl;
         exit(107);
     }
     memory[final_address] = registers[rs1];
@@ -698,7 +698,7 @@ void RISCV_Instructions::BLTU(string rs1, string rs2, string label)
 
 void RISCV_Instructions::JALR(string rd, string rs1, int imm) // Still need to check the restrictions on changing X0
 {
-    registers[rd] = programCounter + 4;
+    registers[rd] = programCounter+4;//We removed four from here 
     programCounter = registers[rs1] + imm;
 
     cout << "kdsflksjdfksjdlfksjdlkfjs      " << programCounter << endl;
@@ -818,7 +818,7 @@ void RISCV_Instructions::findLabels(string filename, map<string, int> &labelMap)
                     return;
                 }
                 // Store label and its memory address
-                labelMap[label] = pc + 4;
+                labelMap[label] = pc;
             }
         }
         pc += 4;
@@ -828,6 +828,7 @@ void RISCV_Instructions::findLabels(string filename, map<string, int> &labelMap)
 void RISCV_Instructions::execute(vector<Instruction> &instruction)
 {
     int programCounterNew = instruction[instruction.size() - 1].pc;
+    int x = 0;
     cout << "Program Counter New: " << programCounterNew << endl;
     cout << "Program Counter: " << programCounter << endl;
     while ((programCounter <= programCounterNew) && programCounter > 0) // Max program counter
@@ -908,12 +909,18 @@ void RISCV_Instructions::execute(vector<Instruction> &instruction)
                 else if (instr.name == "auipc")
                     AUIPC(instr.rd, instr.imm);
                 else if (instr.name == "jalr")
+                {
+
                     JALR(instr.rd, instr.rs1, instr.imm);
+                    x = 1;
+                }
                 else if (instr.name == "lui")
                     LUI(instr.rd, instr.imm);
             }
             // cout << "Program Counter: " << programCounter << endl;
         }
+        if (x != 1)
+            break;
     }
 }
 void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction> &instructions, map<string, int> &labelMap)
@@ -1033,32 +1040,31 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
                             cerr << "Invalid S-type instruction line: " << line << endl;
                         }
                         break;
-case 0x3: // Load Instructions
-                      // Parse the operands for Load instructions
-                      // Example: "lw x10, 10(x11)"
-                if (iss >> instr.rd >> offset >> comma >> instr.rs1)
-                {
-                    // Extract the immediate value from the offset
-                    instr.imm = offset;
-                    // Set the rd field to 0 for S-type instructions
-                    instr.rs2 = "";
-                    // Remove commas from the operands
-                    instr.rd = removeCommas(instr.rd);
-                    instr.rs1 = removeCommas(instr.rs1);
-                    // Remove brackets from the operands
-                    instr.rd = removeBrackets(instr.rd);
-                    instr.rs1 = removeBrackets(instr.rs1);
+                    case 0x3: // Load Instructions
+                              // Parse the operands for Load instructions
+                              // Example: "lw x10, 10(x11)"
+                        if (iss >> instr.rd >> offset >> comma >> instr.rs1)
+                        {
+                            // Extract the immediate value from the offset
+                            instr.imm = offset;
+                            // Set the rd field to 0 for S-type instructions
+                            instr.rs2 = "";
+                            // Remove commas from the operands
+                            instr.rd = removeCommas(instr.rd);
+                            instr.rs1 = removeCommas(instr.rs1);
+                            // Remove brackets from the operands
+                            instr.rd = removeBrackets(instr.rd);
+                            instr.rs1 = removeBrackets(instr.rs1);
 
-                    convert_to_xbase_register(instr.rs1);
-                    convert_to_xbase_register(instr.rd);
-                    instr.pc=programCounter;
-
-                }
-                else
-                {
-                    cerr << "Invalid Load instruction line: " << line << endl;
-                }
-                break;
+                            convert_to_xbase_register(instr.rs1);
+                            convert_to_xbase_register(instr.rd);
+                            instr.pc = programCounter;
+                        }
+                        else
+                        {
+                            cerr << "Invalid Load instruction line: " << line << endl;
+                        }
+                        break;
                     case 0x63: // Branch Instructions
                         // Parse the operands for Branch instructions
                         // Example: "beq x10, x11, label"
@@ -1189,7 +1195,7 @@ void RISCV_Instructions::simulation()
 void RISCV_Instructions::RunProrgam()
 {
     // Parse the assembly code file
-    std::string filename = "TestCases/testCase3.asm";
+    std::string filename = "TestCases/testCase1.asm";
     int pc;
     cout << "Enter the value of PC" << endl;
     cin >> pc;
