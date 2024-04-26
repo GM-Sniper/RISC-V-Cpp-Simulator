@@ -62,7 +62,7 @@ public:
 	void LHU(string rd,string rs1,int imm);
 	void SB(string rs1, string rs2, int imm);
 	void SH(string rs1, string rs2, int imm);
-	void SW(string rd,string rs1,int imm);
+	void SW(string rs1,string rs2,int imm);
 	void JALR(string rd,string rs1,int imm);
 	void JAL(string rd,string label);
 	void LUI(string rd,int imm);

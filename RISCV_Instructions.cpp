@@ -10,14 +10,16 @@
 const int two_8 = 255;
 const int two_16 = 65535;
 using namespace std;
-string removeCommas(const string& input) {
+string removeCommas(const string &input)
+{
     string result = input;
     result.erase(remove(result.begin(), result.end(), ','), result.end());
     return result;
 }
 
 // Function to remove brackets from a string
-string removeBrackets(const string& input) {
+string removeBrackets(const string &input)
+{
     string result = input;
     result.erase(remove(result.begin(), result.end(), '('), result.end());
     result.erase(remove(result.begin(), result.end(), ')'), result.end());
@@ -590,17 +592,17 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
 
             // Check if the line contains a label
             if (line.find(':') != string::npos)
-            {   
+            {
                 line.erase(remove(line.begin(), line.end(), ' '), line.end());
-                int position=-1;
-                for(int i=0;i<line.size();i++)
+                int position = -1;
+                for (int i = 0; i < line.size(); i++)
                 {
-                    if(line[i]==':')
+                    if (line[i] == ':')
                     {
-                        position=i;
+                        position = i;
                     }
                 }
-                if(line.at(position+1)!='\n'||line.at(position+1)!='\t')
+                if (line.at(position + 1) != '\n' || line.at(position + 1) != '\t')
                 {
                     cerr << "Cannot write Insturction after Label, please rewrite the syntex error" << endl;
                     exit(51);
@@ -626,6 +628,10 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
                 string instructionName;
                 if (iss >> instructionName)
                 {
+
+                    // Converting the instruction name into lowercase to avoid any error while reading from file
+                    transform(instructionName.begin(), instructionName.end(), instructionName.begin(), [](unsigned char c)
+                              { return tolower(c); });
                     cout << "Instruction Name: " << instructionName << endl;
                     int opcode = opcodes[instructionName];
                     switch (opcode)
@@ -642,6 +648,32 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
                             instr.rs1 = removeCommas(instr.rs1);
                             instr.rs2 = removeCommas(instr.rs2);
 
+                            // Converting all registers used to X based
+                            // Example a0 will be mapped to x0
+                            convert_to_xbase_register(instr.rd);
+                            convert_to_xbase_register(instr.rs1);
+                            convert_to_xbase_register(instr.rs2);
+
+                            if (instructionName == "add")
+                                ADD(instr.rd, instr.rs1, instr.rs2);
+                            else if (instructionName == "sub")
+                                SUB(instr.rd, instr.rs1, instr.rs2);
+                            else if (instructionName == "sll")
+                                SLL(instr.rd, instr.rs1, instr.rs2);
+                            else if (instructionName == "slt")
+                                SLT(instr.rd, instr.rs1, instr.rs2);
+                            else if (instructionName == "sltu")
+                                SLTU(instr.rd, instr.rs1, instr.rs2);
+                            else if (instructionName == "xor")
+                                XOR(instr.rd, instr.rs1, instr.rs2);
+                            else if (instructionName == "srl")
+                                SRL(instr.rd, instr.rs1, instr.rs2);
+                            else if (instructionName == "sra")
+                                SRA(instr.rd, instr.rs1, instr.rs2);
+                            else if (instructionName == "or")
+                                OR(instr.rd, instr.rs1, instr.rs2);
+                            else if (instructionName == "and")
+                                AND(instr.rd, instr.rs1, instr.rs2);
                         }
                         else
                         {
@@ -659,36 +691,63 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
                             // Remove commas from the operands
                             instr.rd = removeCommas(instr.rd);
                             instr.rs1 = removeCommas(instr.rs1);
+
+                            convert_to_xbase_register(instr.rd);
+                            convert_to_xbase_register(instr.rs1);
+                            if (instructionName == "addi")
+                                ADDI(instr.rd, instr.rs1, instr.imm);
+                            else if (instructionName == "slti")
+                                SLTI(instr.rd, instr.rs1, instr.imm);
+                            else if (instructionName == "sltiu")
+                                SLTIU(instr.rd, instr.rs1, instr.imm);
+                            else if (instructionName == "xori")
+                                XORI(instr.rd, instr.rs1, instr.imm);
+                            else if (instructionName == "ori")
+                                ORI(instr.rd, instr.rs1, instr.imm);
+                            else if (instructionName == "andi")
+                                ANDI(instr.rd, instr.rs1, instr.imm);
+                            else if (instructionName == "slli")
+                                SLLI(instr.rd, instr.rs1, instr.imm);
+                            else if (instructionName == "srli")
+                                SRLI(instr.rd, instr.rs1, instr.imm);
+                            else if (instructionName == "srai")
+                                SRAI(instr.rd, instr.rs1, instr.imm);
                         }
                         else
                         {
                             cerr << "Invalid I-type instruction line: " << line << endl;
                         }
                         break;
-                   case 0x23: // S-type instructions
-                    // Parse the operands for S-type instructions
-                    // Example: "sw x10, 10(x11)"
-                    char comma;
-                    int offset;
-                    if (iss >> instr.rs2 >> offset >> comma >> instr.rs1)
-                    {
-                        // Extract the immediate value from the offset
-                        instr.imm = offset;
-                        // Set the rd field to 0 for S-type instructions
-                        instr.rd = "";
-                        // Remove commas from the operands
-                        instr.rs2 = removeCommas(instr.rs2);
-                        instr.rs1 = removeCommas(instr.rs1);
-                        // Remove brackets from the operands
-                        instr.rs2 = removeBrackets(instr.rs2);
-                        instr.rs1 = removeBrackets(instr.rs1);
+                    case 0x23: // S-type instructions
+                        // Parse the operands for S-type instructions
+                        // Example: "sw x10, 10(x11)"
+                        char comma;
+                        int offset;
+                        if (iss >> instr.rs2 >> offset >> comma >> instr.rs1)
+                        {
+                            // Extract the immediate value from the offset
+                            instr.imm = offset;
+                            // Set the rd field to 0 for S-type instructions
+                            instr.rd = "";
+                            // Remove commas from the operands
+                            instr.rs2 = removeCommas(instr.rs2);
+                            instr.rs1 = removeCommas(instr.rs1);
+                            // Remove brackets from the operands
+                            instr.rs2 = removeBrackets(instr.rs2);
+                            instr.rs1 = removeBrackets(instr.rs1);
 
-                    }
-                    else
-                    {
-                        cerr << "Invalid S-type instruction line: " << line << endl;
-                    }
-                    break;
+                            if (instructionName == "sw")
+                                SW(instr.rs1, instr.rs2, instr.imm);
+                            else if (instructionName == "sb")
+                                SB(instr.rs1, instr.rs2, instr.imm);
+                            else if (instructionName == "sh")
+                                SH(instr.rs1, instr.rs2, instr.imm);
+                        }
+                        else
+                        {
+                            cerr << "Invalid S-type instruction line: " << line << endl;
+                        }
+                        break;
                     case 0x3: // Load Instructions
                         // Parse the operands for Load instructions
                         // Example: "lw x10, 10(x11)"
@@ -705,6 +764,20 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
                             instr.rs1 = removeCommas(instr.rs1);
                             // Remove brackets from the operands
                             instr.rs1 = removeBrackets(instr.rs1);
+
+                            convert_to_xbase_register(instr.rd);
+                            convert_to_xbase_register(instr.rs1);
+
+                            if (instructionName == "lw")
+                                LW(instr.rd, instr.rs1, instr.imm);
+                            else if (instructionName == "lb")
+                                LB(instr.rd, instr.rs1, instr.imm);
+                            else if (instructionName == "lbu")
+                                LBU(instr.rd, instr.rs1, instr.imm);
+                            else if (instructionName == "lh")
+                                LH(instr.rd, instr.rs1, instr.imm);
+                            else if (instructionName == "lhu")
+                                LHU(instr.rd, instr.rs1, instr.imm);
                         }
                         else
                         {
@@ -721,52 +794,72 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
                             // Remove commas from the operands
                             instr.rs1 = removeCommas(instr.rs1);
                             instr.rs2 = removeCommas(instr.rs2);
+
+                            convert_to_xbase_register(instr.rs2);
+                            convert_to_xbase_register(instr.rs1);
+
+                            if (instructionName == "beq")
+                                BEQ(instr.rs1, instr.rs2, instr.label);
+                            else if (instructionName == "bne")
+                                BNE(instr.rs1, instr.rs2, instr.label);
+                            else if (instructionName == "bge")
+                                BGE(instr.rs1, instr.rs2, instr.label);
+                            else if (instructionName == "bltu")
+                                BLTU(instr.rs1, instr.rs2, instr.label);
+                            else if (instructionName == "bgeu")
+                                BGEU(instr.rs1, instr.rs2, instr.label);
                         }
                         else
                         {
                             cerr << "Invalid Branch instruction line: " << line << endl;
                         }
                         break;
-                    
-                    case 0x67: //JALR instruction
+
+                    case 0x67: // JALR instruction
                         // Parse the operands for jalr instruction
                         // Example: "jalr x10, x20, 0"
                         if (iss >> instr.rd && iss.ignore() && iss >> instr.rs1 && iss.ignore() && iss >> instr.imm)
                         {
-                            // Set the rs2 field to zero for jalr instruction
-                            instr.rs2 = "x0";
                             // Remove commas from the operands
                             instr.rd = removeCommas(instr.rd);
                             instr.rs1 = removeCommas(instr.rs1);
 
+                            convert_to_xbase_register(instr.rd);
+                            convert_to_xbase_register(instr.rs1);
+
+                            JALR(instr.rd, instr.rs1, instr.imm);
                         }
                         else
                         {
                             cerr << "Invalid jalr instruction line: " << line << endl;
                         }
                         break;
-                    case 0x69: //JAL instruction
+                    case 0x69: // JAL instruction
                         // Parse the operands for jal instruction
                         // Example: "jal x10, label"
                         if (iss >> instr.rd >> instr.label)
                         {
                             // Remove commas from the operands
                             instr.rd = removeCommas(instr.rd);
+                            convert_to_xbase_register(instr.rd);
+                            JAL(instr.rd, instr.label);
                         }
                         else
                         {
                             cerr << "Invalid jal instruction line: " << line << endl;
                         }
-                        break; 
+                        break;
                     case 0x17: // AUIPC instruction
                         // Parse the operands for auipc instruction
                         // Example: "auipc x10, 100"
                         if (iss >> instr.rd >> instr.imm)
                         {
-                            // Set the rs1 field to zero for auipc instruction
-                            instr.rs1 = "x0";
                             // Remove commas from the operands
                             instr.rd = removeCommas(instr.rd);
+
+                            convert_to_xbase_register(instr.rd);
+
+                            AUIPC(instr.rd, instr.imm);
                         }
                         else
                         {
@@ -778,10 +871,12 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
                         // Example: "lui x10, 100"
                         if (iss >> instr.rd >> instr.imm)
                         {
-                            // Set the rs1 field to zero for lui instruction
-                            instr.rs1 = "x0";
                             // Remove commas from the operands
                             instr.rd = removeCommas(instr.rd);
+
+                            convert_to_xbase_register(instr.rd);
+
+                            LUI(instr.rd, instr.imm);
                         }
                         else
                         {
@@ -789,17 +884,17 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
                         }
                         break;
                     default:
-                    cerr << "Wrong instruction, Unsupported opcode: " << opcode << endl;
-                    break;
-                    } 
+                        cerr << "Wrong instruction, Unsupported opcode: " << opcode << endl;
+                        break;
+                    }
                 }
                 else
                 {
                     cerr << "Invalid instruction line: " << line << endl;
                 }
 
-                programCounter += 4; // Assuming each instruction takes 4 bytes in memory
-                instructions.push_back(instr);
+                // programCounter += 4; // Assuming each instruction takes 4 bytes in memory
+                // instructions.push_back(instr);
             }
         }
 
@@ -859,31 +954,31 @@ void convert_to_xbase_register(std::string &reg)
     }
     else if (reg == "t0")
     {
-        reg == "x5";
+        reg = "x5";
     }
     else if (reg == "t1")
     {
-        reg == "x6";
+        reg = "x6";
     }
     else if (reg == "t2")
     {
-        reg == "x7";
+        reg = "x7";
     }
     else if (reg == "t3")
     {
-        reg == "x28";
+        reg = "x28";
     }
     else if (reg == "t4")
     {
-        reg == "x29";
+        reg = "x29";
     }
     else if (reg == "t5")
     {
-        reg == "x30";
+        reg = "x30";
     }
     else if (reg == "t6")
     {
-        reg == "x31";
+        reg = "x31";
     }
     else if (reg == "s0" || reg == "fp")
     {
@@ -989,10 +1084,17 @@ FiveBitValue parseBinaryToFiveBit(const std::string &binaryString)
 
 void RISCV_Instructions::simulation()
 {
-     std::cout << "Register" << "\t" << "Decimal" << "\t" << "Hexadecimal" << "\t" << "Binary" << std::endl;
+    std::cout << "Register"
+              << "\t"
+              << "Decimal"
+              << "\t"
+              << "Hexadecimal"
+              << "\t"
+              << "Binary" << std::endl;
     std::cout << "------------------------------------------------------------------" << std::endl;
 
-    for (auto it = registers.begin(); it != registers.end(); ++it) {
-        std::cout << "       " <<  it->first<< "\t" << it->second<< "\t" << std::hex << it->second<< "\t" << std::bitset<32>(it->second) << std::dec << std::endl;
+    for (auto it = registers.begin(); it != registers.end(); ++it)
+    {
+        std::cout << "       " << it->first << "\t" << it->second << "\t" << std::hex << it->second << "\t" << std::bitset<32>(it->second) << std::dec << std::endl;
     }
 }
