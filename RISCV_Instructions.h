@@ -68,6 +68,7 @@ public:
 	void LUI(string rd,int imm);
 	void AUIPC(string rd,int imm);
 	void RunProrgam();
+	void setProgramCounter(int pc);
 private:
 	void holding();
 	map<std::string, int> registers;
@@ -90,7 +91,6 @@ private:
 	void parsingAssemblyCode(string filename, vector<Instruction> &instructions, map<string,int> &labelMap);
     int programCounter;
     vector<Instruction> instructions;
-	
 	void simulation();
 	
 };

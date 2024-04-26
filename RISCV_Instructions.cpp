@@ -114,11 +114,11 @@ void convert_to_xbase_register(std::string &reg)
     }
     else if (reg == "a1")
     {
-        reg == "x11";
+        reg = "x11";
     }
     else if (reg == "a2")
     {
-        reg == "x12";
+        reg = "x12";
     }
     else if (reg == "a3")
     {
@@ -179,12 +179,17 @@ string removeBrackets(const string &input)
 }
 RISCV_Instructions::RISCV_Instructions()
 {
-    // Constructor implementation
+    programCounter = 0;
 }
 
 RISCV_Instructions::~RISCV_Instructions()
 {
-    // Destructor implementation
+    
+}
+
+void RISCV_Instructions::setProgramCounter(int pc)
+{
+    programCounter = pc;
 }
 
 void RISCV_Instructions::set_rs1(std::string temp_rs1)
@@ -1075,12 +1080,13 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
                 }
 
                 // programCounter += 4; // Assuming each instruction takes 4 bytes in memory
-                // instructions.push_back(instr);
+                 instructions.push_back(instr);
             }
         }
 
-        file.close();
+        
     }
+    file.close();
 }
 void RISCV_Instructions::simulation()
 {
@@ -1101,11 +1107,12 @@ void RISCV_Instructions::simulation()
 void RISCV_Instructions::RunProrgam()
 {
     // Parse the assembly code file
-    std::string filename = "basic_sample.txt";
+    std::string filename = "testsample.asm";
+    int pc;
+    cout<<"Enter the value of PC"<<endl;
+    cin>>pc;
+    setProgramCounter(pc);
     parsingAssemblyCode(filename, instructions, labelMap);
-
-    // Display the parsed instructions
-    std::cout << "Parsed Instructions:" << std::endl;
 
     // Perform simulation
     simulation();
