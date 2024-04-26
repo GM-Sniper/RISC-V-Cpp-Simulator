@@ -81,12 +81,14 @@ private:
 	FiveBitValue rd;
 	uint32_t imm;
 	struct Instruction {
+		string name;
     	string rs1;
     	string rs2;
     	int imm;
     	string rd;
 		string label;
 	};
+	void execute(vector<Instruction> &instr);
 	void findLabels(string filename, map<string,int> &labelMap);
 	void processOpcode(map<std::string, uint8_t>& opcodes);
 	void parsingAssemblyCode(string filename, vector<Instruction> &instructions, map<string,int> &labelMap);
