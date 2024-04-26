@@ -70,5 +70,6 @@
         "xhash": "cpp",
         "xlocmon": "cpp",
         "xloctime": "cpp"
-    }
+    },
+    "python.analysis.diagnosticMode": "workspace"
 }
