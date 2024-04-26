@@ -1,0 +1,20 @@
+Instruction: addi x12, zero, 0, Address: 10000
+Instruction Name: addi
+Instruction: addi x13, zero, 1, Address: 10004
+Instruction Name: addi
+Instruction: addi x11, zero, 3, Address: 10008
+Instruction Name: addi
+Instruction: addi x10, zero, 2, Address: 10012
+Instruction Name: addi
+Instruction: loop:, Address: 10016
+Instruction: slti x13, x12, 20, Address: 10016
+Instruction Name: slti
+Instruction: beq x13, zero, end, Address: 10020
+Instruction Name: beq
+Instruction: add x10, x10, x11, Address: 10024
+Instruction Name: add
+Instruction: addi x12, x12, 1, Address: 10028
+Instruction Name: addi
+Instruction: beq x0, x0, loop, Address: 10032
+Instruction Name: beq
+Instruction: end:, Address: 10020
