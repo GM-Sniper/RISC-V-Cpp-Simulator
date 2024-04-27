@@ -4,6 +4,10 @@ April 21nd, 8:30pm, Conversion from t0 and stuff like this into x-base registers
 
 April 22rd, 2:30pm, Implemented the memory system, by adding a map that contains the adddress and the memory data
 
+April 22rd, 3:30 pm, Implemeted the first draft simulation function and the bonus part of the output in binary, hex and decimal  
+
+April 23rd, 7:00 pm, worked on the first draft parsing the data file 
+
 April 23rd, 8:00pm, Fixed some issues with the memory addressing
 
 April 24th, 9:35pm, Done some tests for the functions my teammates wrote
