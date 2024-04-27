@@ -212,7 +212,7 @@ void RISCV_Instructions::set_rd(std::string temp_rd)
     rd = parseBinaryToFiveBit(temp_rd);
 }
 
-constexpr uint64_t MAX_MEMORY_ADDRESS = 0xFFFFFFFFULL; // 4GB in bytes
+constexpr uint64_t MAX_MEMORY_ADDRESS = 0xFFFFFFFF; // 4GB in bytes
 map<unsigned int, int> memory;
 
 void RISCV_Instructions::setDatainMemory(string filename)
@@ -284,7 +284,7 @@ void RISCV_Instructions::LH(std::string rd, std::string rs1, int imm)
 };
 void RISCV_Instructions::LW(std::string rd, std::string rs1, int imm)
 {
-    if (rd == "xo")
+    if (rd == "x0")
         return;
 
     int address = registers[rs1] + imm;
@@ -335,7 +335,7 @@ void RISCV_Instructions::LHU(std::string rd, std::string rs1, int imm)
 };
 void RISCV_Instructions::SB(std::string rs1, std::string rs2, int imm)
 {
-    int address = registers[rs2] + imm;
+    int address = registers[rs1] + imm;
     int r = address % 4;
     int final_address = address - r;
 
@@ -345,7 +345,7 @@ void RISCV_Instructions::SB(std::string rs1, std::string rs2, int imm)
         exit(105);
     }
 
-    unsigned int byte = registers[rs1] & 0xFF; // Extract the least significant byte
+    unsigned int byte = registers[rs2] & 0xFF; // Extract the least significant byte
 
     // Shift the byte to the correct position based on the remainder
     byte <<= (8 * r);
@@ -357,7 +357,7 @@ void RISCV_Instructions::SB(std::string rs1, std::string rs2, int imm)
 };
 void RISCV_Instructions::SH(std::string rs1, std::string rs2, int imm)
 {
-    int address = registers[rs2] + imm;
+    int address = registers[rs1] + imm;
     int r = address % 4;
     int final_address = address - r;
 
@@ -367,7 +367,7 @@ void RISCV_Instructions::SH(std::string rs1, std::string rs2, int imm)
         exit(106);
     }
 
-    unsigned int half = registers[rs1] & 0xFFFF; // Extract the least significant halfword
+    unsigned int half = registers[rs2] & 0xFFFF; // Extract the least significant halfword
 
     // Shift the halfword to the correct position based on the remainder
     half <<= (8 * r);
@@ -380,15 +380,14 @@ void RISCV_Instructions::SH(std::string rs1, std::string rs2, int imm)
 
 void RISCV_Instructions::SW(std::string rs1, std::string rs2, int imm)
 {
-    int final_address = registers[rs2] + imm;
-
+    int final_address = registers[rs1] + imm;
     if (memory.find(final_address) == memory.end())
     {
         std::cerr << "Error: Memory access out of bounds - SW" << std::endl;
         cout << rs1 << rs2 << endl;
         exit(107);
     }
-    memory[final_address] = registers[rs1];
+    memory[final_address] = registers[rs2];
     programCounter += 4;
 };
 
@@ -1065,6 +1064,9 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
                             // Remove brackets from the operands
                             instr.rs2 = removeBrackets(instr.rs2);
                             instr.rs1 = removeBrackets(instr.rs1);
+
+                            convert_to_xbase_register(instr.rs2);
+                            convert_to_xbase_register(instr.rs1);
                             instr.pc = programCounter;
                         }
                         else
@@ -1245,12 +1247,25 @@ void RISCV_Instructions::simulation()
     {
         std::cout << it->first << "\t   | \t" << it->second << "\t|" << std::hex << it->second << "\t\t| " << std::bitset<32>(it->second) << std::dec << std::endl;
     }
+    std::cout << "------------------------------------------------------------------" << std::endl;
+    std::cout << "Memory Address"
+              << "\t"
+              << "Decimal"
+              << "\t"
+              << "Hexadecimal"
+              << "\t"
+              << "Binary" << std::endl;
+    std::cout << "------------------------------------------------------------------" << std::endl;
+    for(auto it =memory.begin(); it != memory.end(); ++it)
+    {
+        std::cout << it->first << "\t   | \t" << it->second << "\t|" << std::hex << it->second << "\t\t| " << std::bitset<32>(it->second) << std::dec << std::endl;
+    }
 }
 void RISCV_Instructions::RunProrgam()
 { // Set the data memory
     setDatainMemory("TestCases/Data.txt");
     // Parse the assembly code file
-    std::string filename = "TestCases/testCase1.asm";
+    std::string filename = "TestCases/testCase5.asm";
     int pc;
     cout << "Enter the value of PC" << endl;
     cin >> pc;
