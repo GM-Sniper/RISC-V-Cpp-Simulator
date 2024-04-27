@@ -4,11 +4,13 @@ April 21nd, 8:30pm, Conversion from t0 and stuff like this into x-base registers
 
 April 22rd, 2:30pm, Implemented the memory system, by adding a map that contains the adddress and the memory data
 
-April 22rd, 8:00pm, Fixed some issues with the memory addressing
+April 23rd, 8:00pm, Fixed some issues with the memory addressing
 
-April 23th, 6:35pm, Done some tests for the functions my teammates wrote
+April 24th, 9:35pm, Done some tests for the functions my teammates wrote
 
 April 25th, 12:00pm, Started implementing the GUI
+
+April 25th, 9:00pm, Debugging many problems with the code
 
 April 27th, 3:00pm, GUI working correctly with some bugs
 

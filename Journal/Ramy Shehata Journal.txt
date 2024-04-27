@@ -1,3 +1,11 @@
-April 22nd at 8PM, I have finished the parsing of all instructions using the opcode, created an opcode txt that includes every opcode for easier parsing. Had a few issues regarding commas and brackets
+April 22nd at 8PM, I have finished the parsing of all instructions using the opcode, created an opcode txt that includes every opcode for easier parsing. Had a few issues regarding commas and brackets.
 
-April 23rd at 10pm, I finished
+April 23rd at 10pm, I finished the parsing with all the issues of names fixed, also added many error handlings to ensure seemless parsing.
+
+April 25th at 6pm, I have added testcases to ensure the majority of my teammate Omar's instructions were working correctly, found some issues and reported back to him to fix them, also me omar and mohammed were together in a call for hours trying to fix the issues we had related to jumping and branching instructions
+
+April 26th at 7pm, I started fixing most of the problems we had with our code including doing test codes for shifting, loading and storing words, and jumping
+
+April 27th at 1pm, added 2 testcases which were fibonacci and gcd, but gcd was scrapped.
+
+April 27th at 10pm, Wrote the entire report and added screenshots and codes doen by teammates.
