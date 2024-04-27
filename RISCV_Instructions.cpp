@@ -251,69 +251,96 @@ void RISCV_Instructions::LB(std::string rd, std::string rs1, int imm)
     if (rd == "x0")
         return;
 
-    int k = registers[rs1];
-    int r = (registers[rs1] + imm) % 4;
-    int address = registers[rs1] + imm - r;
-
-    // Check if the address is already in memory, if not, initialize it
-    if (memory.find(address) == memory.end())
+    if (!(imm > (1 << 11) - 1 || imm < -1 * (1 << 11)))
     {
-        std::cerr << "Error: Memory access out of bounds - LB" << std::endl;
-        exit(100);
-    }
+        int k = registers[rs1];
+        int r = (registers[rs1] + imm) % 4;
+        int address = registers[rs1] + imm - r;
 
-    registers[rd] = (memory[address] << (8 * (3 - r)));
+        // Check if the address is already in memory, if not, initialize it
+        if (memory.find(address) == memory.end())
+        {
+            std::cerr << "Error: Memory access out of bounds - LB" << std::endl;
+            exit(100);
+        }
+        else
+            registers[rd] = (memory[address] << (8 * (3 - r)));
+    }
+    else
+    {
+        cout << "Immediate can't be more than 12 bit - LB" << endl;
+        exit(1001);
+    }
     programCounter += 4;
 };
 void RISCV_Instructions::LH(std::string rd, std::string rs1, int imm)
 {
     if (rd == "x0")
         return;
-
-    int r = (registers[rs1] + imm) % 4;
-    int address = registers[rs1] + imm - r;
-
-    if (memory.find(address) == memory.end())
+    if (!(imm > (1 << 11) - 1 || imm < -1 * (1 << 11)))
     {
-        std::cerr << "Error: Memory access out of bounds - LH" << std::endl;
-        exit(101);
-    }
+        int r = (registers[rs1] + imm) % 4;
+        int address = registers[rs1] + imm - r;
 
-    registers[rd] = (memory[address] << (8 * (2 - r))) >> 16;
+        if (memory.find(address) == memory.end())
+        {
+            std::cerr << "Error: Memory access out of bounds - LH" << std::endl;
+            exit(101);
+        }
+        else
+            registers[rd] = (memory[address] << (8 * (2 - r))) >> 16;
+    }
+    else
+    {
+        cout << "Immediate can't be more than 12 bit - LH" << endl;
+        exit(1002);
+    }
     programCounter += 4;
 };
 void RISCV_Instructions::LW(std::string rd, std::string rs1, int imm)
 {
     if (rd == "x0")
         return;
-
-    int address = registers[rs1] + imm;
-    cout<<imm<<" "<<registers[rs1]<<" "<<"  "<<address<<endl;
-
-    // Check if the address is within the valid memory range
-    if (memory.find(address) == memory.end())
+    if (!(imm > (1 << 11) - 1 || imm < -1 * (1 << 11)))
     {
-        std::cerr << "Error: Memory access out of bounds -LW " << std::endl;
-        exit(102);
+        int address = registers[rs1] + imm;
+        // Check if the address is within the valid memory range
+        if (memory.find(address) == memory.end())
+        {
+            std::cerr << "Error: Memory access out of bounds -LW " << std::endl;
+            exit(102);
+        }
+        else
+            registers[rd] = memory[address];
     }
-    registers[rd] = memory[address];
+    else
+    {
+        cout << "Immediate can't be more than 12 bit - LW" << endl;
+        exit(1003);
+    }
     programCounter += 4;
 }
 void RISCV_Instructions::LBU(std::string rd, std::string rs1, int imm)
 {
     if (rd == "x0")
         return;
-
-    int r = (registers[rs1] + imm) % 4;
-    int address = registers[rs1] + imm - r;
-
-    if (memory.find(address) == memory.end())
+    if (!(imm > (1 << 11) - 1 || imm < -1 * (1 << 11)))
     {
-        std::cerr << "Error: Memory access out of bounds - LBU" << std::endl;
-        exit(103);
+        int r = (registers[rs1] + imm) % 4;
+        int address = registers[rs1] + imm - r;
+        if (memory.find(address) == memory.end())
+        {
+            std::cerr << "Error: Memory access out of bounds - LBU" << std::endl;
+            exit(103);
+        }
+        else
+            registers[rd] = (memory[address] << (8 * (3 - r))) >> 24;
     }
-
-    registers[rd] = (memory[address] << (8 * (3 - r))) >> 24;
+    else
+    {
+        cout << "Immediate can't be more than 12 bit - LBU" << endl;
+        exit(1004);
+    }
     programCounter += 4;
 };
 
@@ -321,17 +348,23 @@ void RISCV_Instructions::LHU(std::string rd, std::string rs1, int imm)
 {
     if (rd == "x0")
         return;
-
-    int r = (registers[rs1] + imm) % 4;
-    int address = registers[rs1] + imm - r;
-
-    
-    if (memory.find(address) == memory.end())
+    if (!(imm > (1 << 11) - 1 || imm < -1 * (1 << 11)))
     {
-        std::cerr << "Error: Memory access out of bounds - LHU" << std::endl;
-        exit(104);
+        int r = (registers[rs1] + imm) % 4;
+        int address = registers[rs1] + imm - r;
+
+        if (memory.find(address) == memory.end())
+        {
+            std::cerr << "Error: Memory access out of bounds - LHU" << std::endl;
+            exit(104);
+        }
+        registers[rd] = (unsigned int)(memory[address] << (8 * (2 - r))) >> 16;
     }
-    registers[rd] = (unsigned int)(memory[address] << (8 * (2 - r))) >> 16;
+    else
+    {
+        cout << "Immediate can't be more than 12 bit - LHU" << endl;
+        exit(1005);
+    }
     programCounter += 4;
 };
 void RISCV_Instructions::SB(std::string rs1, std::string rs2, int imm)
@@ -340,11 +373,11 @@ void RISCV_Instructions::SB(std::string rs1, std::string rs2, int imm)
     int r = address % 4;
     int final_address = address - r;
 
-    if (memory.find(final_address) == memory.end())
-    {
-        std::cerr << "Error: Memory access out of bounds - SB" << std::endl;
-        exit(105);
-    }
+    // if (memory.find(final_address) == memory.end())
+    // {
+    //     std::cerr << "Error: Memory access out of bounds - SB" << std::endl;
+    //     exit(105);
+    // }
 
     unsigned int byte = registers[rs2] & 0xFF; // Extract the least significant byte
 
@@ -362,11 +395,11 @@ void RISCV_Instructions::SH(std::string rs1, std::string rs2, int imm)
     int r = address % 4;
     int final_address = address - r;
 
-    if (memory.find(final_address) == memory.end())
-    {
-        std::cerr << "Error: Memory access out of bounds - SH" << std::endl;
-        exit(106);
-    }
+    // if (memory.find(final_address) == memory.end())
+    // {
+    //     std::cerr << "Error: Memory access out of bounds - SH" << std::endl;
+    //     exit(106);
+    // }
 
     unsigned int half = registers[rs2] & 0xFFFF; // Extract the least significant halfword
 
@@ -382,13 +415,11 @@ void RISCV_Instructions::SH(std::string rs1, std::string rs2, int imm)
 void RISCV_Instructions::SW(std::string rs1, std::string rs2, int imm)
 {
     int final_address = registers[rs1] + imm;
-    cout<< "Final Address"<< final_address << endl;
-    //if (memory.find(final_address) == memory.end())
-    //{
-        //std::cerr << "Error: Memory access out of bounds - SW" << std::endl;
-        //cout << rs1 << rs2 << endl;
-       // exit(107);
-    //}
+    // if (memory.find(final_address) == memory.end())
+    // {
+    //     std::cerr << "Error: Memory access out of bounds - SW" << std::endl;
+    //     exit(107);
+    // }
     memory[final_address] = registers[rs2];
     programCounter += 4;
 };
@@ -416,7 +447,15 @@ void RISCV_Instructions::ADD(string rd, string rs1, string rs2)
 void RISCV_Instructions::ADDI(string rd, string rs1, int imm)
 {
     if (rd != "x0")
-        registers[rd] = registers[rs1] + imm;
+    {
+        if (!(imm > (1 << 11) - 1 || imm < -1 * (1 << 11)))
+            registers[rd] = registers[rs1] + imm;
+        else
+        {
+            cout << "The Immediate is more than 12 bit - ADDI" << endl;
+            exit(1000);
+        }
+    }
     else
     {
         cout << "Can't add to x0" << endl;
@@ -440,7 +479,15 @@ void RISCV_Instructions::AND(string rd, string rs1, string rs2)
 void RISCV_Instructions::ANDI(string rd, string rs1, int imm)
 {
     if (rd != "X0")
-        registers[rd] = registers[rs1] & imm;
+    {
+        if (!(imm > (1 << 11) - 1 || imm < -1 * (1 << 11)))
+            registers[rd] = registers[rs1] & imm;
+        else
+        {
+            cout << "The Immediate is more than 12 bit - ANDI" << endl;
+            exit(1006);
+        }
+    }
     else
     {
         cout << "Can't and to x0" << endl;
@@ -570,10 +617,18 @@ void RISCV_Instructions::SLTI(string rd, string rs1, int imm)
 {
     if (rd != "X0")
     {
-        if (registers[rs1] < imm)
-            registers[rd] = 1;
+        if (!(imm > (1 << 11) - 1 || imm < -1 * (1 << 11)))
+        {
+            if (registers[rs1] < imm)
+                registers[rd] = 1;
+            else
+                registers[rd] = 0;
+        }
         else
-            registers[rd] = 0;
+        {
+            cout << "The Immediate is more than 12 bit - SLTI" << endl;
+            exit(1007);
+        }
     }
     else
     {
@@ -586,10 +641,18 @@ void RISCV_Instructions::SLTIU(string rd, string rs1, int imm)
 {
     if (rd != "X0")
     {
-        if ((unsigned int)registers[rs1] < imm)
-            registers[rd] = 1;
+        if (!(imm > (1 << 11) - 1 || imm < -1 * (1 << 11)))
+        {
+            if ((unsigned int)registers[rs1] < imm)
+                registers[rd] = 1;
+            else
+                registers[rd] = 0;
+        }
         else
-            registers[rd] = 0;
+        {
+            cout << "The Immediate is more than 12 bit - SLTIU" << endl;
+            exit(1008);
+        }
     }
     else
     {
@@ -603,7 +666,15 @@ void RISCV_Instructions::XORI(string rd, string rs1, int imm)
 {
     if (rd != "X0")
     {
-        registers[rd] = registers[rs1] ^ imm;
+        if (!(imm > (1 << 11) - 1 || imm < -1 * (1 << 11)))
+        {
+            registers[rd] = registers[rs1] ^ imm;
+        }
+        else
+        {
+            cout << "The Immediate is more than 12 bit - XORI" << endl;
+            exit(1009);
+        }
     }
     else
     {
@@ -617,7 +688,15 @@ void RISCV_Instructions::ORI(string rd, string rs1, int imm)
 {
     if (rd != "X0")
     {
-        registers[rd] = registers[rs1] | imm;
+        if (!(imm > (1 << 11) - 1 || imm < -1 * (1 << 11)))
+        {
+            registers[rd] = registers[rs1] | imm;
+        }
+        else
+        {
+            cout << "The Immediate is more than 12 bit - ORI" << endl;
+            exit(1010);
+        }
     }
     else
     {
@@ -630,7 +709,15 @@ void RISCV_Instructions::ORI(string rd, string rs1, int imm)
 void RISCV_Instructions::SLLI(string rd, string rs1, int imm)
 {
     if (rd != "X0")
-        registers[rd] = registers[rs1] << imm;
+    {
+        if (!(imm > (1 << 11) - 1 || imm < -1 * (1 << 11)))
+            registers[rd] = registers[rs1] << imm;
+        else
+        {
+            cout << "The Immediate is more than 12 bit - SLLI" << endl;
+            exit(1011);
+        }
+    }
     else
     {
         cout << "Can't change x0 - SLLI" << endl;
@@ -642,7 +729,15 @@ void RISCV_Instructions::SLLI(string rd, string rs1, int imm)
 void RISCV_Instructions::SRLI(string rd, string rs1, int imm)
 {
     if (rd != "X0")
-        registers[rd] = registers[rs1] >> imm;
+    {
+        if (!(imm > (1 << 11) - 1 || imm < -1 * (1 << 11)))
+            registers[rd] = registers[rs1] >> imm;
+        else
+        {
+            cout << "The Immediate is more than 12 bit - SRLI" << endl;
+            exit(1012);
+        }
+    }
     else
     {
         cout << "Can't change x0 - SRLI" << endl;
@@ -654,7 +749,16 @@ void RISCV_Instructions::SRLI(string rd, string rs1, int imm)
 void RISCV_Instructions::SRAI(string rd, string rs1, int imm)
 {
     if (rd != "X0")
-        registers[rd] = registers[rs1] >> imm;
+    {
+        if (!(imm > (1 << 11) - 1 || imm < -1 * (1 << 11)))
+            registers[rd] = registers[rs1] >> imm;
+
+        else
+        {
+            cout << "The Immediate is more than 12 bit - SRAI" << endl;
+            exit(1013);
+        }
+    }
     else
     {
         cout << "Can't change x0 - SRAI" << endl;
@@ -669,7 +773,6 @@ void RISCV_Instructions::BEQ(string rs1, string rs2, string label)
         cerr << "Trying to jump to a non existing label- BEQ " << endl;
         exit(200);
     }
-    // cout << "hweriorfolwehrweoi      " << labelMap[label] << endl;
     if (registers[rs1] == registers[rs2])
         programCounter = labelMap[label];
     else
@@ -683,8 +786,6 @@ void RISCV_Instructions::BGE(string rs1, string rs2, string label)
         cerr << "Trying to jump to a non existing label - BGE " << endl;
         exit(201);
     }
-    cout<<label<<endl;
-    cout<<"sdjhfsdhkjshdjfhsjkdhv   "<<labelMap[label]<<endl;
     if (registers[rs1] >= registers[rs2])
         programCounter = labelMap[label];
     else
@@ -745,8 +846,6 @@ void RISCV_Instructions::JALR(string rd, string rs1, int imm) // Still need to c
 {
     registers[rd] = programCounter + 4; // We removed four from here
     programCounter = registers[rs1] + imm;
-
-    // cout << "kdsflksjdfksjdlfksjdlkfjs      " << programCounter << endl;
     if (rd == "x0")
         registers[rd] = 0;
 }
@@ -762,7 +861,6 @@ void RISCV_Instructions::JAL(string rd, string label)
     {
         registers[rd] = programCounter + 4;
         programCounter = labelMap[label];
-        // cout << ",sdnfmsjdkfjsdklfjlskdjflksjdflksjdkfljsdklfjsd    " << programCounter << endl;
     }
     else
     {
@@ -816,7 +914,7 @@ void RISCV_Instructions::processOpcode(map<std::string, uint8_t> &opcodes)
 void RISCV_Instructions::findLabels(string filename, map<string, int> &labelMap)
 {
     int pc = programCounter;
-    int i=0;
+    int i = 0;
     ifstream file(filename);
     if (!file.is_open())
     {
@@ -866,10 +964,7 @@ void RISCV_Instructions::findLabels(string filename, map<string, int> &labelMap)
                     return;
                 }
                 // Store label and its memory address
-                cout<<"kjshfdkjsdhkfjsdhf     "<<label<<"  "<<pc<<endl;
-                cout<<i<<endl;
-                labelMap[label] = pc-(4*i);
-                cout<<"msdfsdlkfjsdlkj    "<<labelMap[label]<<endl;
+                labelMap[label] = pc - (4 * i);
                 i++;
             }
         }
@@ -882,8 +977,6 @@ void RISCV_Instructions::execute(vector<Instruction> &instruction)
     int programCounterNew = instruction[instruction.size() - 1].pc;
     int x = 0;
     bool CheckBreak = false;
-    cout << "Program Counter New: " << programCounterNew << endl;
-    cout << "Program Counter: " << programCounter << endl;
     while ((programCounter <= programCounterNew) && programCounter > 0) // Max program counter
     {
         // cout << "kjsdfhksdhfkjs   " << programCounter << endl;
@@ -947,7 +1040,7 @@ void RISCV_Instructions::execute(vector<Instruction> &instruction)
                     LHU(instr.rd, instr.rs1, instr.imm);
                 else if (instr.name == "beq")
                     BEQ(instr.rs1, instr.rs2, instr.label);
-                else if(instr.name == "blt")
+                else if (instr.name == "blt")
                     BLT(instr.rs1, instr.rs2, instr.label);
                 else if (instr.name == "bne")
                     BNE(instr.rs1, instr.rs2, instr.label);
@@ -1019,7 +1112,7 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
                     // Converting the instruction name into lowercase to avoid any error while reading from file
                     transform(instructionName.begin(), instructionName.end(), instructionName.begin(), [](unsigned char c)
                               { return tolower(c); });
-                    cout << "Instruction Name: " << instructionName << programCounter << endl;
+                    cout << "Instruction Name: " << instructionName << " Program Counter: " << programCounter << endl;
                     instr.name = instructionName;
                     int opcode = opcodes[instructionName];
                     switch (opcode)
@@ -1278,7 +1371,7 @@ void RISCV_Instructions::simulation()
               << "\t"
               << "Binary" << std::endl;
     std::cout << "------------------------------------------------------------------" << std::endl;
-    for(auto it =memory.begin(); it != memory.end(); ++it)
+    for (auto it = memory.begin(); it != memory.end(); ++it)
     {
         std::cout << it->first << "\t   | \t" << it->second << "\t|" << std::hex << it->second << "\t\t| " << std::bitset<32>(it->second) << std::dec << std::endl;
     }
@@ -1303,17 +1396,17 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    
+
     std::string filenameAssembly = argv[1];
     std::string filenameData = argv[2];
     RISCV_Instructions riscv;
     riscv.RunProrgam(filenameAssembly,filenameData);
-   
+
 }
 */
 int main()
 {
     RISCV_Instructions riscv;
-    riscv.RunProrgam("TestCases/testCase9.asm", "TestCases/Data.txt");
+    riscv.RunProrgam("TestCases/recursive_arraysum.asm", "TestCases/Data.txt");
     return 0;
 }
