@@ -1,28 +1,34 @@
 #include <iostream>
-#include <fstream>
 #include <string>
 
-int main(int argc, char *argv[]) {
-    if (argc != 2) {
-        std::cerr << "Usage: " << argv[0] << " <input_file.txt>" << std::endl;
-        return 1;
-    }
 
-    std::string filename = argv[1];
+void simulate()
+{
+    std::cout<<"2"<<std::endl;
+    std::cout<<"2"<<std::endl;
+}
 
-    // Add your file parsing logic here based on the filename...
-    // For example:
-    std::ifstream file(filename);
-    if (file.is_open()) {
-        std::string line;
-        while (std::getline(file, line)) {
-            std::cout << line << std::endl;  // Output each line of the file
-        }
-        file.close();
-    } else {
-        std::cerr << "Error opening file." << std::endl;
-        return 1;
-    }
+int main()
+{
+    std::string input1, input2;
 
+    // Read the first input string
+    //std::cout << "Enter first string: ";
+    std::getline(std::cin, input1);
+
+    // Read the second input string
+   // std::cout << "Enter second string: ";
+    std::getline(std::cin, input2);
+
+    // Process the input strings (example: concatenate them)
+
+    std::cout << "first string: " << input1 << std::endl;
+    std::cout << "second string: " << input2 << std::endl;
+    simulate();
+
+    
+    // Perform your program logic here based on the input strings
+
+    // Return an exit code (optional)
     return 0;
 }

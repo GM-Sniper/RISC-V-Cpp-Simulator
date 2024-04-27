@@ -2,44 +2,44 @@ import tkinter as tk
 from tkinter import filedialog
 import subprocess
 
-import os
+def launch_cpp_process():
+    # Run the C++ executable
+    process = subprocess.Popen(["./main.exe"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    return process
 
-import subprocess
+def get_cpp_output(process, input_str1, input_str2):
+    # Send inputs to the C++ process and get output
+    inputs = f"{input_str1}\n{input_str2}\n"  # Separate inputs by newline
+    stdout, stderr = process.communicate(input=inputs)
+    return stdout
 
-def parse_file():
-    file_path = file_entry.get()
-    if file_path.endswith(".txt"):
-        # Pass the file path as a string argument to the C++ executable
-        process = subprocess.Popen(["./main.exe", file_path], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        stdout, stderr = process.communicate()
-        output_text.delete("1.0", tk.END)
-        output_text.insert(tk.END, stdout)
-    else:
-        output_text.delete("1.0", tk.END)
-        output_text.insert(tk.END, "Invalid file format. Please select a .txt file.")
-
-def browse_file():
-    file_path = filedialog.askopenfilename(filetypes=[("Text files", "*.txt")])
-    if file_path:
-        file_entry.delete(0, tk.END)
-        file_entry.insert(tk.END, file_path)
+def parse_input():
+    input_str1 = input_entry1.get()
+    input_str2 = input_entry2.get()
+    process = launch_cpp_process()
+    output = get_cpp_output(process, input_str1, input_str2)
+    output_text.delete("1.0", tk.END)
+    output_text.insert(tk.END, output)
 
 root = tk.Tk()
-root.title("RISCV_Instructions GUI")
+root.title("Two-String Input GUI")
 
-file_label = tk.Label(root, text="Enter file path or browse:")
-file_label.pack()
+input_label1 = tk.Label(root, text="Enter first string:")
+input_label1.pack()
 
-file_entry = tk.Entry(root, width=60)
-file_entry.pack()
+input_entry1 = tk.Entry(root, width=60)
+input_entry1.pack()
 
-browse_button = tk.Button(root, text="Browse", command=browse_file)
-browse_button.pack()
+input_label2 = tk.Label(root, text="Enter second string:")
+input_label2.pack()
 
-parse_button = tk.Button(root, text="Parse File", command=parse_file)
+input_entry2 = tk.Entry(root, width=60)
+input_entry2.pack()
+
+parse_button = tk.Button(root, text="Parse Input", command=parse_input)
 parse_button.pack()
 
-output_text = tk.Text(root, height=20, width=60)
+output_text = tk.Text(root, height=10, width=60)
 output_text.pack()
 
 root.mainloop()
