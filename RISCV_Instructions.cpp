@@ -212,7 +212,7 @@ void RISCV_Instructions::set_rd(std::string temp_rd)
     rd = parseBinaryToFiveBit(temp_rd);
 }
 
-constexpr uint64_t MAX_MEMORY_ADDRESS = 0xFFFFFFFFULL; // 4GB in bytes
+constexpr uint64_t MAX_MEMORY_ADDRESS = 0xFFFFFFFF; // 4GB in bytes
 map<int, unsigned int> memory;
 
 void RISCV_Instructions::LB(std::string rd, std::string rs1, int imm)
@@ -701,7 +701,7 @@ void RISCV_Instructions::JALR(string rd, string rs1, int imm) // Still need to c
     registers[rd] = programCounter + 4; // We removed four from here
     programCounter = registers[rs1] + imm;
 
-    cout << "kdsflksjdfksjdlfksjdlkfjs      " << programCounter << endl;
+    // cout << "kdsflksjdfksjdlfksjdlkfjs      " << programCounter << endl;
     if (rd == "x0")
         registers[rd] = 0;
 }
@@ -717,7 +717,7 @@ void RISCV_Instructions::JAL(string rd, string label)
     {
         registers[rd] = programCounter + 4;
         programCounter = labelMap[label];
-        cout << ",sdnfmsjdkfjsdklfjlskdjflksjdflksjdkfljsdklfjsd    " << programCounter << endl;
+        // cout << ",sdnfmsjdkfjsdklfjlskdjflksjdflksjdkfljsdklfjsd    " << programCounter << endl;
     }
     else
     {
@@ -831,6 +831,7 @@ void RISCV_Instructions::execute(vector<Instruction> &instruction)
 {
     int programCounterNew = instruction[instruction.size() - 1].pc;
     int x = 0;
+    bool CheckBreak = false;
     cout << "Program Counter New: " << programCounterNew << endl;
     cout << "Program Counter: " << programCounter << endl;
     while ((programCounter <= programCounterNew) && programCounter > 0) // Max program counter
@@ -911,18 +912,16 @@ void RISCV_Instructions::execute(vector<Instruction> &instruction)
                 else if (instr.name == "auipc")
                     AUIPC(instr.rd, instr.imm);
                 else if (instr.name == "jalr")
-                {
-
                     JALR(instr.rd, instr.rs1, instr.imm);
-                    x = 1;
-                }
                 else if (instr.name == "lui")
                     LUI(instr.rd, instr.imm);
+                else if (instr.name == "ebreak" || instr.name == "ecall" || instr.name == "fence")
+                    CheckBreak = true;
             }
             // cout << "Program Counter: " << programCounter << endl;
         }
-        // if (x != 1)
-        //     break;
+        if (CheckBreak)
+            break;
     }
 }
 void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction> &instructions, map<string, int> &labelMap)
@@ -1157,6 +1156,28 @@ void RISCV_Instructions::parsingAssemblyCode(string filename, vector<Instruction
                         else
                         {
                             cerr << "Invalid lui instruction line: " << line << endl;
+                        }
+                        break;
+                    case 0x73: // Ecall and Ebreak instructions
+                        instr.rd = "";
+                        instr.rs1 = "";
+                        instr.rs2 = "";
+                        instr.pc = programCounter;
+                        break;
+                    case 0xF:
+                        if (iss >> instr.rd >> instr.rs1)
+                        {
+                            instr.rd = removeCommas(instr.rd);
+                            instr.rs1 = removeCommas(instr.rs1);
+
+                            convert_to_xbase_register(instr.rd);
+                            convert_to_xbase_register(instr.rs1);
+
+                            instr.pc = programCounter;
+                        }
+                        else
+                        {
+                            cerr << "Invaled Fence instruction line " << line << endl;
                         }
                         break;
                     default:

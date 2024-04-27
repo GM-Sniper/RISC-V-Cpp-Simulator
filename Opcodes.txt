@@ -35,3 +35,6 @@ srl, 51
 sra, 51
 or, 51
 and, 51
+ebreak, 115
+ecall, 115
+fence, 15
