@@ -1373,7 +1373,7 @@ void RISCV_Instructions::simulation()
     std::cout << "------------------------------------------------------------------" << std::endl;
     for (auto it = memory.begin(); it != memory.end(); ++it)
     {
-        std::cout << it->first << "\t   | \t" << it->second << "\t|" << std::hex << it->second << "\t\t| " << std::bitset<32>(it->second) << std::dec << std::endl;
+        std::cout << it->first << "\t   | \t" << it->second << "\t|" << "0x"<<std::hex << it->second << "\t\t| " << std::bitset<32>(it->second) << std::dec << std::endl;
     }
 }
 void RISCV_Instructions::RunProrgam(string filenameAssembly, string filenameData,int programcounter)

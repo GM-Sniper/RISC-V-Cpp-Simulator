@@ -11,3 +11,5 @@ April 23th, 6:35pm, Done some tests for the functions my teammates wrote
 April 25th, 12:00pm, Started implementing the GUI
 
 April 27th, 3:00pm, GUI working correctly with some bugs
+
+April 27th, 4:00om, GUI working as intended

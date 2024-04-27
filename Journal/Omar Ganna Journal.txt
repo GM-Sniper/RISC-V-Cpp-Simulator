@@ -1,0 +1,11 @@
+April 21st 9:30 pm - Implemented the rest of the remaining 29 instructions for the RISC-V simulation
+
+April 22st 6:20 pm - Fixed some of the syntax errors regarding the instructions
+
+April 24th 8:00 pm - Added a function to execute the instructions parsed by my teammate Ramy
+
+April 25th from 6pm to 10 pm - Debugging many issues with the code regarding labels and jumnping instructions.
+
+April 26th from 12 pm to 6 pm - Created 4 testcases to test our program. Debugged a lot of the issues with the help of both my teammates, regarding storing and loading instructions.
+
+April 27th from 5 pm to 10 pm - Integrating the rest of our codes together to ensure seamless works and debugging some issues related to jumping again.

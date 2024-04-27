@@ -1,0 +1,3 @@
+April 22nd at 8PM, I have finished the parsing of all instructions using the opcode, created an opcode txt that includes every opcode for easier parsing. Had a few issues regarding commas and brackets
+
+April 23rd at 10pm, I finished
