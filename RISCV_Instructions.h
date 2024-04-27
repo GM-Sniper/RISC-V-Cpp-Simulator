@@ -79,7 +79,6 @@ private:
 	FiveBitValue rs1;
 	FiveBitValue rs2;
 	FiveBitValue rd;
-	uint32_t imm;
 	struct Instruction {
 		string name;
     	string rs1;
@@ -96,5 +95,6 @@ private:
     int programCounter;
     vector<Instruction> instructions;
 	void simulation();
+	void setDatainMemory(string filename);
 	
 };
