@@ -1376,13 +1376,10 @@ void RISCV_Instructions::simulation()
         std::cout << it->first << "\t   | \t" << it->second << "\t|" << std::hex << it->second << "\t\t| " << std::bitset<32>(it->second) << std::dec << std::endl;
     }
 }
-void RISCV_Instructions::RunProrgam(string filenameAssembly, string filenameData)
+void RISCV_Instructions::RunProrgam(string filenameAssembly, string filenameData,int programcounter)
 { // Set the data memory
     setDatainMemory(filenameData);
-    int pc;
-    cout << "Enter the value of PC" << endl;
-    cin >> pc;
-    setProgramCounter(pc);
+    setProgramCounter(programcounter);
     parsingAssemblyCode(filenameAssembly, instructions, labelMap);
 
     // Perform simulation
@@ -1404,9 +1401,22 @@ int main(int argc, char *argv[]) {
 
 }
 */
+// int main()
+// {
+//     RISCV_Instructions riscv;
+//     riscv.RunProrgam("TestCases/sumarraycode.txt", "TestCases/sumarraymem.txt");
+//     return 0;
+// }
+
 int main()
 {
+
+    std::string input1, input2, input3;
+    std::getline(std::cin, input1); 
+    std::getline(std::cin, input2);
+    std::getline(std::cin, input3);
+    int pc=stoi(input3);
+    cout<<"mdjflksjdlkfjksd  "<<pc<<endl;
     RISCV_Instructions riscv;
-    riscv.RunProrgam("TestCases/recursive_arraysum.asm", "TestCases/Data.txt");
-    return 0;
+    riscv.RunProrgam(input1,input2,pc);
 }

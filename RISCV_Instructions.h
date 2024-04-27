@@ -68,7 +68,7 @@ public:
 	void JAL(string rd,string label);
 	void LUI(string rd,int imm);
 	void AUIPC(string rd,int imm);
-	void RunProrgam(string filenameAssembly, string filenameData);
+	void RunProrgam(string filenameAssembly, string filenameData,int pc);
 	void setProgramCounter(int pc);
 private:
 	void holding();
