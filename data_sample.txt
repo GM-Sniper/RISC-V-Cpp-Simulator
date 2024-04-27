@@ -1,2 +1,0 @@
-msg , db , “Helloworld!”, 0x0a
-

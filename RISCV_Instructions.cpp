@@ -1416,7 +1416,6 @@ int main()
     std::getline(std::cin, input2);
     std::getline(std::cin, input3);
     int pc=stoi(input3);
-    cout<<"mdjflksjdlkfjksd  "<<pc<<endl;
     RISCV_Instructions riscv;
     riscv.RunProrgam(input1,input2,pc);
 }
