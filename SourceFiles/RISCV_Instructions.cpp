@@ -852,7 +852,7 @@ void RISCV_Instructions::AUIPC(string rd, int imm)
 }
 void RISCV_Instructions::processOpcode(map<std::string, uint8_t> &opcodes)
 {
-    string filename = "TestCases/Opcodes.txt";
+    string filename = "../TestCases/Opcodes.txt";
     ifstream file(filename);
     if (!file.is_open())
     {
