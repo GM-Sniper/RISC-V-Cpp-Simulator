@@ -1,4 +1,4 @@
-addi a0, zero, 7
+addi a0, zero, 8
 jal ra, Fib
 ecall
 Fib:
@@ -13,6 +13,6 @@ add t0, t1, zero
 add t1, t3, zero
 addi t2, t2, 1
 bge a0, t2, L1
-add a0, a0, t1
+add a0, zero, t1
 exit:
 jalr zero, 0(ra)

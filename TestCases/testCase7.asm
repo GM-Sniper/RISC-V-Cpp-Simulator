@@ -1,4 +1,3 @@
-
 addi s0, zero, 100 
 addi s1, zero, 5 
 jal ra, Sum
@@ -16,3 +15,5 @@ jal ra, Loop
 break:
 add x1, zero, s2
 ecall
+lol:
+add x12, x12, zero

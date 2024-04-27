@@ -288,6 +288,7 @@ void RISCV_Instructions::LW(std::string rd, std::string rs1, int imm)
         return;
 
     int address = registers[rs1] + imm;
+    cout<<imm<<" "<<registers[rs1]<<" "<<"  "<<address<<endl;
 
     // Check if the address is within the valid memory range
     if (memory.find(address) == memory.end())
@@ -324,12 +325,12 @@ void RISCV_Instructions::LHU(std::string rd, std::string rs1, int imm)
     int r = (registers[rs1] + imm) % 4;
     int address = registers[rs1] + imm - r;
 
+    
     if (memory.find(address) == memory.end())
     {
         std::cerr << "Error: Memory access out of bounds - LHU" << std::endl;
         exit(104);
     }
-
     registers[rd] = (unsigned int)(memory[address] << (8 * (2 - r))) >> 16;
     programCounter += 4;
 };
@@ -682,6 +683,8 @@ void RISCV_Instructions::BGE(string rs1, string rs2, string label)
         cerr << "Trying to jump to a non existing label - BGE " << endl;
         exit(201);
     }
+    cout<<label<<endl;
+    cout<<"sdjhfsdhkjshdjfhsjkdhv   "<<labelMap[label]<<endl;
     if (registers[rs1] >= registers[rs2])
         programCounter = labelMap[label];
     else
@@ -813,6 +816,7 @@ void RISCV_Instructions::processOpcode(map<std::string, uint8_t> &opcodes)
 void RISCV_Instructions::findLabels(string filename, map<string, int> &labelMap)
 {
     int pc = programCounter;
+    int i=0;
     ifstream file(filename);
     if (!file.is_open())
     {
@@ -862,7 +866,11 @@ void RISCV_Instructions::findLabels(string filename, map<string, int> &labelMap)
                     return;
                 }
                 // Store label and its memory address
-                labelMap[label] = pc;
+                cout<<"kjshfdkjsdhkfjsdhf     "<<label<<"  "<<pc<<endl;
+                cout<<i<<endl;
+                labelMap[label] = pc-(4*i);
+                cout<<"msdfsdlkfjsdlkj    "<<labelMap[label]<<endl;
+                i++;
             }
         }
         pc += 4;
@@ -1306,6 +1314,6 @@ int main(int argc, char *argv[]) {
 int main()
 {
     RISCV_Instructions riscv;
-    riscv.RunProrgam("TestCases/testCase7.asm", "TestCases/Data.txt");
+    riscv.RunProrgam("TestCases/testCase9.asm", "TestCases/Data.txt");
     return 0;
 }
