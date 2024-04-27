@@ -8,29 +8,12 @@
 #include <map>
 #include <unordered_map>
 using namespace std;
-struct FiveBitValue
-{
-	unsigned int value : 5;
-};
-struct SevenBitValue
-{
-	unsigned int value : 7;
-};
-
-struct ThreeBitValue
-{
-	unsigned int value : 3;
-};
 
 class RISCV_Instructions
 {
 public:
 	RISCV_Instructions();
 	~RISCV_Instructions();
-	SevenBitValue opcode;
-	void set_rs1(std::string temp_rs1);
-	void set_rs2(std::string temp_rs2);
-	void set_rd(std::string temp_rd);
 	void ADD(string rd,string rs1,string rs2);
 	void SUB(string rd,string rs1,string rs2);
 	void SLL(string rd,string rs1,string rs2);
@@ -71,16 +54,11 @@ public:
 	void RunProrgam(string filenameAssembly, string filenameData,int pc);
 	void setProgramCounter(int pc);
 private:
-	void holding();
-	map<std::string, int> registers;
-	map<std::string, uint8_t> opcodes;
-	map<string,int> labelMap;
-	ThreeBitValue funct3;
-	SevenBitValue funct7;
-	FiveBitValue rs1;
-	FiveBitValue rs2;
-	FiveBitValue rd;
-	struct Instruction {
+	map<std::string, int> registers; //registers
+	map<std::string, uint8_t> opcodes; //opcodes
+	map<string,int> labelMap; //labels
+	struct Instruction { //struct for instructions
+		string opcode;
 		string name;
     	string rs1;
     	string rs2;
@@ -89,10 +67,10 @@ private:
 		string label;
 		int pc;
 	};
-	void execute(vector<Instruction> &instr);
-	void findLabels(string filename, map<string,int> &labelMap);
-	void processOpcode(map<std::string, uint8_t>& opcodes);
-	void parsingAssemblyCode(string filename, vector<Instruction> &instructions, map<string,int> &labelMap);
+	void execute(vector<Instruction> &instr); //execute instructions
+	void findLabels(string filename, map<string,int> &labelMap); //stores labels and their program counter in a map
+	void processOpcode(map<std::string, uint8_t>& opcodes);  // process opcodes given by a txt file
+	void parsingAssemblyCode(string filename, vector<Instruction> &instructions, map<string,int> &labelMap); //parsing assembly code
     int programCounter;
     vector<Instruction> instructions;
 	void simulation();

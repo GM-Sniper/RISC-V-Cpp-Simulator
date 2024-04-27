@@ -151,17 +151,6 @@ string convert_to_binary(std::string &rs)
     return binaryNum.to_string();
 }
 
-FiveBitValue parseBinaryToFiveBit(const std::string &binaryString)
-{
-
-    unsigned int parsedValue = std::bitset<5>(binaryString).to_ulong();
-
-    FiveBitValue result;
-    result.value = parsedValue;
-
-    return result;
-}
-
 string removeCommas(const string &input)
 {
     string result = input;
@@ -189,27 +178,6 @@ RISCV_Instructions::~RISCV_Instructions()
 void RISCV_Instructions::setProgramCounter(int pc)
 {
     programCounter = pc;
-}
-
-void RISCV_Instructions::set_rs1(std::string temp_rs1)
-{
-    convert_to_xbase_register(temp_rs1);
-    temp_rs1 = convert_to_binary(temp_rs1);
-    rs1 = parseBinaryToFiveBit(temp_rs1);
-}
-
-void RISCV_Instructions::set_rs2(std::string temp_rs2)
-{
-    convert_to_xbase_register(temp_rs2);
-    temp_rs2 = convert_to_binary(temp_rs2);
-    rs2 = parseBinaryToFiveBit(temp_rs2);
-}
-
-void RISCV_Instructions::set_rd(std::string temp_rd)
-{
-    convert_to_xbase_register(temp_rd);
-    temp_rd = convert_to_binary(temp_rd);
-    rd = parseBinaryToFiveBit(temp_rd);
 }
 
 constexpr uint64_t MAX_MEMORY_ADDRESS = 0xFFFFFFFF; // 4GB in bytes
@@ -884,7 +852,7 @@ void RISCV_Instructions::AUIPC(string rd, int imm)
 }
 void RISCV_Instructions::processOpcode(map<std::string, uint8_t> &opcodes)
 {
-    string filename = "Opcodes.txt";
+    string filename = "TestCases/Opcodes.txt";
     ifstream file(filename);
     if (!file.is_open())
     {
