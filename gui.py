@@ -3,50 +3,49 @@ from tkinter import filedialog
 import subprocess
 
 def launch_cpp_process():
-    # Run the C++ executable
     process = subprocess.Popen(["./RISCV_Instructions.exe"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     return process
 
-def get_cpp_output(process, input_str1, input_str2, input_str3):
-    # Send inputs to the C++ process and get output
-    inputs = f"{input_str1}\n{input_str2}\n{input_str3}\n"  # Separate inputs by newline
+def get_cpp_output(process, code, data, pc):
+    inputs = f"{code}\n{data}\n{pc}\n"  
     stdout, stderr = process.communicate(input=inputs)
     return stdout
 
 def parse_input():
-    input_str1 = input_entry1.get()
-    input_str2 = input_entry2.get()
-    input_str3 = input_entry3.get()
+    code = input1.get()
+    data = input2.get()
+    pc = input3.get()
     process = launch_cpp_process()
-    output = get_cpp_output(process, input_str1, input_str2, input_str3)
-    output_text.delete("1.0", tk.END)
-    output_text.insert(tk.END, output)
+    output = get_cpp_output(process, code, data, pc)
+    output1.delete("1.0", tk.END)
+    output1.insert(tk.END, output)
 
-root = tk.Tk()
-root.title("RISCV Simulator")
+RISC_V = tk.Tk()
+RISC_V.title("RISCV Simulator")
 
-input_label1 = tk.Label(root, text="Enter the assembly code path in txt:")
-input_label1.pack()
+label1 = tk.Label(RISC_V, text="Enter the assembly code path in txt:")
+label1.pack()
 
-input_entry1 = tk.Entry(root, width=60)
-input_entry1.pack()
+input1 = tk.Entry(RISC_V, width=60)
+input1.pack()
 
-input_label2 = tk.Label(root, text="Enter the data needed for the code (if no data needed just add an empty txt file):")
-input_label2.pack()
+label2 = tk.Label(RISC_V, text="Enter the data needed for the code (if no data needed just add an empty txt file):")
+label2.pack()
 
-input_entry2 = tk.Entry(root, width=60)
-input_entry2.pack()
+input2 = tk.Entry(RISC_V, width=60)
+input2.pack()
 
-input_label3 = tk.Label(root, text="Enter the program counter for the instruction to start with:")
-input_label3.pack()
+label3 = tk.Label(RISC_V, text="Enter the program counter for the instruction to start with:")
+label3.pack()
 
-input_entry3 = tk.Entry(root, width=60)
-input_entry3.pack()
+input3 = tk.Entry(RISC_V, width=60)
+input3.pack()
 
-parse_button = tk.Button(root, text="Parse Input", command=parse_input)
-parse_button.pack()
+parse = tk.Button(RISC_V, text="Parse Input", command=parse_input)
+parse.pack()
 
-output_text = tk.Text(root, height=50, width=600)
-output_text.pack()
+output1 = tk.Text(RISC_V, height=50, width=600)
+output1.pack()
 
-root.mainloop()
+RISC_V.mainloop()
+
