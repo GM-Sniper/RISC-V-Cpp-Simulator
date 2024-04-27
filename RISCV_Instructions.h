@@ -53,6 +53,7 @@ public:
 	void BEQ(string rs1, string rs2,string label);
 	void BNE(string rs1, string rs2,string label);
 	void BGE(string rs1, string rs2,string label);
+	void BLT(string rs1, string rs2,string label);
 	void BLTU(string rs1, string rs2,string label);
 	void BGEU(string rs1, string rs2,string label);
 	void LB(string rd,string rs1,int imm);
@@ -67,7 +68,7 @@ public:
 	void JAL(string rd,string label);
 	void LUI(string rd,int imm);
 	void AUIPC(string rd,int imm);
-	void RunProrgam();
+	void RunProrgam(string filenameAssembly, string filenameData);
 	void setProgramCounter(int pc);
 private:
 	void holding();

@@ -1,8 +1,9 @@
-addi x1, x0, 3
+addi x1, x0, 10
+addi x2, x0, 4
 beq  x0, x0, loop
 addi x1, x0, 4
 loop:
-beq x1, x0, end
+blt x1, x2, end
 addi x1, x1, -1
 beq x0, x0, loop
 end:

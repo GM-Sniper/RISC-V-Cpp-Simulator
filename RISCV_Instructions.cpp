@@ -381,12 +381,13 @@ void RISCV_Instructions::SH(std::string rs1, std::string rs2, int imm)
 void RISCV_Instructions::SW(std::string rs1, std::string rs2, int imm)
 {
     int final_address = registers[rs1] + imm;
-    if (memory.find(final_address) == memory.end())
-    {
-        std::cerr << "Error: Memory access out of bounds - SW" << std::endl;
-        cout << rs1 << rs2 << endl;
-        exit(107);
-    }
+    cout<< "Final Address"<< final_address << endl;
+    //if (memory.find(final_address) == memory.end())
+    //{
+        //std::cerr << "Error: Memory access out of bounds - SW" << std::endl;
+        //cout << rs1 << rs2 << endl;
+       // exit(107);
+    //}
     memory[final_address] = registers[rs2];
     programCounter += 4;
 };
@@ -669,7 +670,7 @@ void RISCV_Instructions::BEQ(string rs1, string rs2, string label)
     }
     // cout << "hweriorfolwehrweoi      " << labelMap[label] << endl;
     if (registers[rs1] == registers[rs2])
-        programCounter = labelMap[label] - 4;
+        programCounter = labelMap[label];
     else
         programCounter += 4;
 }
@@ -682,7 +683,7 @@ void RISCV_Instructions::BGE(string rs1, string rs2, string label)
         exit(201);
     }
     if (registers[rs1] >= registers[rs2])
-        programCounter = labelMap[label] - 4;
+        programCounter = labelMap[label];
     else
         programCounter += 4;
 }
@@ -695,11 +696,22 @@ void RISCV_Instructions::BNE(string rs1, string rs2, string label)
         exit(201);
     }
     if (registers[rs1] != registers[rs2])
-        programCounter = labelMap[label] - 4;
+        programCounter = labelMap[label];
     else
         programCounter += 4;
 }
-
+void RISCV_Instructions::BLT(string rs1, string rs2, string label)
+{
+    if (!labelMap.count(label))
+    {
+        cerr << "Trying to jump to a non existing label- BLT" << endl;
+        exit(202);
+    }
+    if (registers[rs1] < registers[rs2])
+        programCounter = labelMap[label];
+    else
+        programCounter += 4;
+}
 void RISCV_Instructions::BGEU(string rs1, string rs2, string label)
 {
     if (!labelMap.count(label))
@@ -708,7 +720,7 @@ void RISCV_Instructions::BGEU(string rs1, string rs2, string label)
         exit(202);
     }
     if ((unsigned int)(registers[rs1]) >= (unsigned int)(registers[rs2]))
-        programCounter = labelMap[label] - 4;
+        programCounter = labelMap[label];
     else
         programCounter += 4;
 }
@@ -721,7 +733,7 @@ void RISCV_Instructions::BLTU(string rs1, string rs2, string label)
         exit(203);
     }
     if ((unsigned int)(registers[rs1]) < (unsigned int)(registers[rs2]))
-        programCounter = labelMap[label] - 4;
+        programCounter = labelMap[label];
     else
         programCounter += 4;
 }
@@ -927,6 +939,8 @@ void RISCV_Instructions::execute(vector<Instruction> &instruction)
                     LHU(instr.rd, instr.rs1, instr.imm);
                 else if (instr.name == "beq")
                     BEQ(instr.rs1, instr.rs2, instr.label);
+                else if(instr.name == "blt")
+                    BLT(instr.rs1, instr.rs2, instr.label);
                 else if (instr.name == "bne")
                     BNE(instr.rs1, instr.rs2, instr.label);
                 else if (instr.name == "bge")
@@ -1261,23 +1275,37 @@ void RISCV_Instructions::simulation()
         std::cout << it->first << "\t   | \t" << it->second << "\t|" << std::hex << it->second << "\t\t| " << std::bitset<32>(it->second) << std::dec << std::endl;
     }
 }
-void RISCV_Instructions::RunProrgam()
+void RISCV_Instructions::RunProrgam(string filenameAssembly, string filenameData)
 { // Set the data memory
-    setDatainMemory("TestCases/Data.txt");
-    // Parse the assembly code file
-    std::string filename = "TestCases/testCase5.asm";
+    setDatainMemory(filenameData);
     int pc;
     cout << "Enter the value of PC" << endl;
     cin >> pc;
     setProgramCounter(pc);
-    parsingAssemblyCode(filename, instructions, labelMap);
+    parsingAssemblyCode(filenameAssembly, instructions, labelMap);
 
     // Perform simulation
     simulation();
 }
+/*
+int main(int argc, char *argv[]) {
+    system("gui.py");
+    if (argc != 3) {
+        std::cerr << "Usage: " << argv[0] << " <input_file.txt>" << std::endl;
+        return 1;
+    }
 
+    
+    std::string filenameAssembly = argv[1];
+    std::string filenameData = argv[2];
+    RISCV_Instructions riscv;
+    riscv.RunProrgam(filenameAssembly,filenameData);
+   
+}
+*/
 int main()
 {
     RISCV_Instructions riscv;
-    riscv.RunProrgam();
+    riscv.RunProrgam("TestCases/testCase7.asm", "TestCases/Data.txt");
+    return 0;
 }
