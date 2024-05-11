@@ -49,5 +49,3 @@ Six sample programs are included to demonstrate the simulator's functionality ac
 ### Example of the final output
 ![Output Example](Screenshots/Output.png)
 *Description: This screenshot shows an example of the final state of the registers and memory after the execution of the instructions.*
-
-# RISC-V-32I-Simulator
